@@ -43,7 +43,11 @@ namespace KingAOP.Core
 
         public Expression GenerateMethod()
         {
-            ParameterExpression retMethodValue = Expression.Parameter(_methodExecutionArgs.Method.ReturnType);
+            var retType = _methodExecutionArgs.Method.ReturnType != typeof (void)
+                              ? _methodExecutionArgs.Method.ReturnType
+                              : typeof (object);
+
+            ParameterExpression retMethodValue = Expression.Parameter(retType);
             Expression methArgEx = Expression.Constant(_methodExecutionArgs);
             var aspctCal = new AspectCalls(_aspects, methArgEx, retMethodValue);
 
