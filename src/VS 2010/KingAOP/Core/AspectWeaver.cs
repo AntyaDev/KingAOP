@@ -26,52 +26,51 @@ using System.Reflection;
 using KingAOP.Aspects;
 
 namespace KingAOP.Core
-{   
+{
     /// <summary>
     /// Represent weaver for weaving aspects. 
     /// </summary>
     public class AspectWeaver : DynamicMetaObject
     {
-        private readonly Type _orignType;
+        private readonly Type _objType;
+        private readonly Hashtable _methods;
 
-        public AspectWeaver(Expression expression, object obj) : base(expression, BindingRestrictions.Empty, obj)
+        public AspectWeaver(Expression expression, object obj, Type objType)
+            : base(expression, BindingRestrictions.Empty, obj)
         {
-            _orignType = obj.GetType();
-            if (MethodsCache.Get(_orignType) != null) // checking on existence in global methods cache
-            {
-                return;
-            }
+            _objType = objType;
+            _methods = MethodsCache.Get(_objType);
 
-            var methodCache = new Hashtable();
-
-            foreach (var method in obj.GetType().GetMethods(
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance 
-                | BindingFlags.Static | BindingFlags.DeclaredOnly))
+            if (_methods == null) // checking on existence in global methods cache
             {
-                if (method.IsDefined(typeof(IAspect), false))
+                _methods = new Hashtable();
+
+                foreach (var method in obj.GetType().GetMethods(
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+                    | BindingFlags.Static | BindingFlags.DeclaredOnly))
                 {
-                    var aspects = new SortedList<int, object>(new InvertedComparer());
-                    foreach (Aspect attribute in method.GetCustomAttributes(typeof(Aspect), false))
+                    if (method.IsDefined(typeof(IAspect), false))
                     {
-                        var aspect = AspectCacheFactory.GetAspect(attribute.GetType());
-                        aspects.Add(attribute.AspectPriority, aspect);
+                        var aspects = new SortedList<int, object>(new InvertedComparer());
+                        foreach (Aspect attribute in method.GetCustomAttributes(typeof(Aspect), false))
+                        {
+                            var aspect = AspectCacheFactory.GetAspect(attribute.GetType());
+                            aspects.Add(attribute.AspectPriority, aspect);
+                        }
+                        _methods.Add(method, aspects.Values);
                     }
-                    methodCache.Add(method, aspects.Values);
                 }
+                MethodsCache.Put(_objType, _methods); // put found methods to global cache
             }
-
-            // put found methods to global cache
-            MethodsCache.Put(_orignType, methodCache);
         }
 
         public override DynamicMetaObject BindInvokeMember(InvokeMemberBinder binder, DynamicMetaObject[] args)
         {
             var argsTypes = args.Select(arg => arg.RuntimeType).ToArray();
-            var method = _orignType.GetMethod(binder.Name, argsTypes);
-            var methods = MethodsCache.Get(_orignType);
-            var aspects = (IEnumerable)methods[method];
-            return aspects == null 
-                ? base.BindInvokeMember(binder, args) 
+            var method = _objType.GetMethod(binder.Name, argsTypes);
+            var aspects = (IEnumerable)_methods[method];
+            return aspects == null
+                ? base.BindInvokeMember(binder, args)
                 : WeaveAspect(base.BindInvokeMember(binder, args), aspects, new MethodExecutionArgs(Value, method, new Arguments(args)));
         }
 
