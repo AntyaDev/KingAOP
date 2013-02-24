@@ -15,7 +15,7 @@ namespace KingAOP.Examples.HelloWorld
 
         public DynamicMetaObject GetMetaObject(Expression parameter)
         {
-            return new AspectWeaver(parameter, this);
+            return new AspectWeaver(parameter, this, typeof(HelloWorld));
         }
     }
 }
