@@ -68,10 +68,23 @@ namespace KingAOP.Core
         {
             var argsTypes = args.Select(arg => arg.RuntimeType).ToArray();
             var method = _objType.GetMethod(binder.Name, argsTypes);
-            var aspects = (IEnumerable)_methods[method];
-            return aspects == null
-                ? base.BindInvokeMember(binder, args)
-                : WeaveAspect(base.BindInvokeMember(binder, args), aspects, new MethodExecutionArgs(Value, method, new Arguments(args)));
+            var dynamicObj = DynamicMetaObjectsCache.Get(method);
+            
+            if (dynamicObj == null)
+            {
+                var aspects = (IEnumerable)_methods[method];
+                if (aspects == null)
+                {
+                    dynamicObj = base.BindInvokeMember(binder, args);
+                }
+                else
+                {
+                    dynamicObj = WeaveAspect(base.BindInvokeMember(binder, args), aspects,
+                        new MethodExecutionArgs(Value, method, new Arguments(args)));
+                }
+                DynamicMetaObjectsCache.Put(method, dynamicObj);
+            }
+            return dynamicObj;
         }
 
         private DynamicMetaObject WeaveAspect(DynamicMetaObject origObj, IEnumerable aspects, MethodExecutionArgs executionArgs)
