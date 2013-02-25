@@ -66,7 +66,7 @@ namespace KingAOP.Core
 
         public override DynamicMetaObject BindInvokeMember(InvokeMemberBinder binder, DynamicMetaObject[] args)
         {
-            var argsTypes = args.Select(arg => arg.RuntimeType).ToArray();
+            var argsTypes = GetArgumentsTypes(args);
             var method = _objType.GetMethod(binder.Name, argsTypes);
             var dynamicObj = DynamicMetaObjectsCache.Get(method);
             
@@ -96,6 +96,18 @@ namespace KingAOP.Core
         {
             var aspectGenerator = new AspectGenerator(origObj, aspects, executionArgs);
             return aspectGenerator.GenerateMethod();
+        }
+
+        private Type[] GetArgumentsTypes(DynamicMetaObject[] args)
+        {
+            var argsTypes = new Type[args.Length];
+            for (int i = 0; i < args.Length; i++)
+            {
+                argsTypes[0] = ((ParameterExpression)args[0].Expression).IsByRef
+                    ? args[0].RuntimeType.MakeByRefType()
+                    : args[0].RuntimeType;
+            }
+            return argsTypes;
         }
     }
 }
