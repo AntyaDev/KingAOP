@@ -39,6 +39,7 @@ namespace KingAOP.Aspects
         public object this[int index]
         {
             get { return _objects[index]; }
+            set { _objects[index] = value; }
         }
 
         public int Count
