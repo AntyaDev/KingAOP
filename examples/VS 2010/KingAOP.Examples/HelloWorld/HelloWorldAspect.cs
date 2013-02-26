@@ -2,8 +2,7 @@
 using KingAOP.Aspects;
 
 namespace KingAOP.Examples.HelloWorld
-{
-    [Serializable]
+{    
     class HelloWorldAspect : OnMethodBoundaryAspect
     {
         public override void OnEntry(MethodExecutionArgs args)
