@@ -46,7 +46,10 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MethodBoundaryTests\OnSuccessTests.cs" />
+    <Compile Include="MethodBoundaryTests\OnSuccess\IncrementArgumentValueAspect.cs" />
+    <Compile Include="MethodBoundaryTests\OnSuccess\IncrementReturnValueAspect.cs" />
+    <Compile Include="MethodBoundaryTests\OnSuccess\MyTestClass.cs" />
+    <Compile Include="MethodBoundaryTests\OnSuccess\OnSuccessTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
