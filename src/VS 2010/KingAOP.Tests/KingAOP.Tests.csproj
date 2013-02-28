@@ -46,6 +46,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MethodBoundaryTests\OnEntry\OnEntryTests.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\IncrementArgumentValueAspect.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\IncrementReturnValueAspect.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\InitTestEntityAspect.cs" />
