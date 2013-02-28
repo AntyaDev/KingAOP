@@ -18,6 +18,13 @@ namespace KingAOP.Tests.MethodBoundaryTests.OnSuccess
             number = 0;
         }
 
+        [InitTestEntityAspect]
+        public void InitTestEntity(TestEntity testEntity)
+        {
+            testEntity.Name = "test";
+            testEntity.Number = 0;
+        }
+
         public DynamicMetaObject GetMetaObject(Expression parameter)
         {
             return new AspectWeaver(parameter, this, typeof(MyTestClass));
