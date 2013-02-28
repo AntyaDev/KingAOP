@@ -1,4 +1,5 @@
-﻿using System.Dynamic;
+﻿using System;
+using System.Dynamic;
 using System.Linq.Expressions;
 using KingAOP.Core;
 
@@ -10,6 +11,12 @@ namespace KingAOP.Tests.MethodBoundaryTests.OnSuccess
         public int ReturnArgumentValue(int number)
         {
             return number;
+        }
+
+        [IncrementReturnValueAspect]
+        public int ReturnArgumentValueWithException(int number)
+        {
+            throw new Exception();
         }
 
         [IncrementArgumentValueAspect]

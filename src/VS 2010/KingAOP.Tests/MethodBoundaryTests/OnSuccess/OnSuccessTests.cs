@@ -15,6 +15,20 @@ namespace KingAOP.Tests.MethodBoundaryTests.OnSuccess
         }
 
         [TestMethod]
+        public void OnSuccess_WhenSomeExceptionHappens_Then_OnSuccessShouldNotBeCalled()
+        {
+            int initNumber = 1, initNumber2 = 0;
+            dynamic myTest = new MyTestClass();
+            try
+            {
+                initNumber2 = myTest.ReturnArgumentValueWithException(initNumber);
+            }
+            catch
+            { }
+            Assert.AreEqual(0, initNumber2);
+        }
+
+        [TestMethod]
         public void OnSuccess_AfterCall_InitTestEntity_ShouldBeApplied_IncrementArgumentValueAspect()
         {
             var entity = new TestEntity();
