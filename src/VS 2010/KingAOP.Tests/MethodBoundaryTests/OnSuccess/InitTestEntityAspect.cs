@@ -1,4 +1,5 @@
 ﻿using KingAOP.Aspects;
+using KingAOP.Tests.TestData;
 
 namespace KingAOP.Tests.MethodBoundaryTests.OnSuccess
 {

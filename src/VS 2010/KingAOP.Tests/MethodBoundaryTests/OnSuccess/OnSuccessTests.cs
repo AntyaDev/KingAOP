@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using KingAOP.Tests.TestData;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace KingAOP.Tests.MethodBoundaryTests.OnSuccess
 {

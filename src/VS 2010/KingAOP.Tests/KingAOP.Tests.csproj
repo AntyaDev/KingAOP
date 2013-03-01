@@ -46,13 +46,15 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MethodBoundaryTests\OnEntry\Aspects.cs" />
+    <Compile Include="MethodBoundaryTests\OnEntry\MyTestClass.cs" />
     <Compile Include="MethodBoundaryTests\OnEntry\OnEntryTests.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\IncrementArgumentValueAspect.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\IncrementReturnValueAspect.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\InitTestEntityAspect.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\MyTestClass.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\OnSuccessTests.cs" />
-    <Compile Include="MethodBoundaryTests\OnSuccess\TestEntity.cs" />
+    <Compile Include="TestData\TestEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 ﻿
-namespace KingAOP.Tests.MethodBoundaryTests.OnSuccess
+namespace KingAOP.Tests.TestData
 {
     class TestEntity
     {
