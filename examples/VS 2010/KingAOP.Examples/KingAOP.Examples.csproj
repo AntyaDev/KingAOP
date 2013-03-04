@@ -45,8 +45,11 @@
   <ItemGroup>
     <Compile Include="HelloWorld\HelloWorld.cs" />
     <Compile Include="HelloWorld\HelloWorldAspect.cs" />
+    <Compile Include="Logging\LoggingAspect.cs" />
+    <Compile Include="Logging\TestRepository.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestData\TestEntity.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\VS 2010\KingAOP\KingAOP.csproj">
@@ -54,6 +57,7 @@
       <Name>KingAOP</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

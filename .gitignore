@@ -5,3 +5,7 @@ src/VS 2010/KingAOP.v11.suo
 
 src/VS 2010/KingAOP.Tests/bin
 src/VS 2010/KingAOP.Tests/obj
+
+examples/VS 2010/KingAOP.Examples/bin
+examples/VS 2010/KingAOP.Examples/obj
+examples/VS 2010/KingAOP.Examples.v11.suo
