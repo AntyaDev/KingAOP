@@ -16,6 +16,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 
@@ -24,16 +25,13 @@ namespace KingAOP.Aspects
     /// <summary>
     /// Encapsulation of method arguments.
     /// </summary>
-    public class Arguments
+    public sealed class Arguments
     {
         private readonly List<object> _objects = new List<object>();
 
         public Arguments(IEnumerable<DynamicMetaObject> objects)
         {
-            foreach (var obj in objects)
-            {
-                _objects.Add(obj.Value);
-            }
+            _objects.AddRange(objects);
         }
 
         public object this[int index]
@@ -45,6 +43,11 @@ namespace KingAOP.Aspects
         public int Count
         {
             get { return _objects.Count; }
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return _objects.GetEnumerator();
         }
     }
 }
