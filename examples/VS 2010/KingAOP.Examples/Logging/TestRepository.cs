@@ -7,7 +7,7 @@ namespace KingAOP.Examples.Logging
 {
     internal class TestRepository : IDynamicMetaObjectProvider
     {
-        [LoggingAspect]
+        [LoggingAspect] // added a login aspect
         public void Save(TestEntity entity)
         {
             entity.Name = "Mark";
@@ -16,7 +16,7 @@ namespace KingAOP.Examples.Logging
 
         public DynamicMetaObject GetMetaObject(Expression parameter)
         {
-            return new AspectWeaver(parameter, this, typeof (TestRepository));
+            return new AspectWeaver(parameter, this, typeof (TestRepository)); // need for AOP weaving
         }
     }
 }
