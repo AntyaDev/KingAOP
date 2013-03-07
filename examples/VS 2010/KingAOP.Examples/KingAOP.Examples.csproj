@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExceptionHandling\ExceptionHandlingAspect.cs" />
+    <Compile Include="ExceptionHandling\PublicService.cs" />
     <Compile Include="HelloWorld\HelloWorld.cs" />
     <Compile Include="HelloWorld\HelloWorldAspect.cs" />
     <Compile Include="Logging\LoggingAspect.cs" />
