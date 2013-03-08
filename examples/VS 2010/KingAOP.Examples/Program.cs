@@ -25,7 +25,15 @@ namespace KingAOP.Examples
                 Port = 1234,
                 SessionId = "123908sdfhjkgdfg"
             };
-            publicService.Send(entity);
+            
+            try
+            {
+                publicService.Send(entity);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("We catched original exception after 'exception aspect' did his job.");
+            }
 
             Console.Read();
         }
