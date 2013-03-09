@@ -20,7 +20,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using KingAOP.Aspects;
@@ -45,7 +44,7 @@ namespace KingAOP.Core
             {
                 _methods = new Hashtable();
 
-                foreach (var method in obj.GetType().GetMethods(
+                foreach (var method in _objType.GetMethods(
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
                     | BindingFlags.Static | BindingFlags.DeclaredOnly))
                 {
