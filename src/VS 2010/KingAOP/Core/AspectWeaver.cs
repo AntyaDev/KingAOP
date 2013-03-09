@@ -66,24 +66,28 @@ namespace KingAOP.Core
         public override DynamicMetaObject BindInvokeMember(InvokeMemberBinder binder, DynamicMetaObject[] args)
         {
             var argsTypes = GetArgumentsTypes(args);
-            var method = _objType.GetMethod(binder.Name, argsTypes);
-            var dynamicObj = DynamicMetaObjectsCache.Get(method);
-            
-            if (dynamicObj == null)
+            var method = _objType.GetMethod(binder.Name,
+                BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                argsTypes,
+                null);
+
+            if (method != null)
             {
-                var aspects = (IEnumerable)_methods[method];
-                if (aspects == null)
+                var dynamicObj = DynamicMetaObjectsCache.Get(method);
+                if (dynamicObj == null)
                 {
-                    dynamicObj = base.BindInvokeMember(binder, args);
+                    var aspects = (IEnumerable)_methods[method];
+                    if (aspects != null)
+                    {
+                        dynamicObj = WeaveAspect(base.BindInvokeMember(binder, args), aspects,
+                            new MethodExecutionArgs(Value, method, new Arguments(args)));
+                        DynamicMetaObjectsCache.Put(method, dynamicObj);
+                        return dynamicObj;
+                    }
                 }
-                else
-                {
-                    dynamicObj = WeaveAspect(base.BindInvokeMember(binder, args), aspects,
-                        new MethodExecutionArgs(Value, method, new Arguments(args)));
-                }
-                DynamicMetaObjectsCache.Put(method, dynamicObj);
             }
-            return dynamicObj;
+            return base.BindInvokeMember(binder, args);
         }
 
         private DynamicMetaObject WeaveAspect(DynamicMetaObject origObj, IEnumerable aspects, MethodExecutionArgs executionArgs)
