@@ -30,7 +30,13 @@ namespace KingAOP.Core
         
         public static void Put(Type type, Hashtable methodsCache)
         {
-            Cache.Add(type, methodsCache);
+            lock (Cache)
+            {
+                if (Get(type) == null)
+                {
+                    Cache.Add(type, methodsCache);
+                }
+            }
         }
 
         public static Hashtable Get(Type type)

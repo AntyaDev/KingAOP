@@ -28,7 +28,13 @@ namespace KingAOP.Core
 
         public static void Put(MethodInfo methodInfo, DynamicMetaObject dynamicMetaObject)
         {
-            Cache.Add(methodInfo, dynamicMetaObject);
+            lock (Cache)
+            {
+                if (Get(methodInfo) == null)
+                {
+                    Cache.Add(methodInfo, dynamicMetaObject);
+                }
+            }
         }
 
         public static DynamicMetaObject Get(MethodInfo methodInfo)

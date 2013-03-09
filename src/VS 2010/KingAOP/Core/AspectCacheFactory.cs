@@ -30,13 +30,16 @@ namespace KingAOP.Core
 
         public static object GetAspect(Type aspectType)
         {
-            var aspect = Cache[aspectType];
-            if (aspect == null)
+            lock (Cache)
             {
-                aspect = Activator.CreateInstance(aspectType);
-                Cache[aspectType] = aspect;
+                var aspect = Cache[aspectType];
+                if (aspect == null)
+                {
+                    aspect = Activator.CreateInstance(aspectType);
+                    Cache[aspectType] = aspect;
+                }
+                return aspect;
             }
-            return aspect;
         }
     }
 }
