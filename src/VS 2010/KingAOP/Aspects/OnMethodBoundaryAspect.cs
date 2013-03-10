@@ -16,11 +16,14 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
+
 namespace KingAOP.Aspects
 {
     /// <summary>
     /// Represents a class that can wrap itself around any given method call.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
     public abstract class OnMethodBoundaryAspect : Aspect
     {
         /// <summary>
