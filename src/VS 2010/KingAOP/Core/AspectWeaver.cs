@@ -90,6 +90,16 @@ namespace KingAOP.Core
             return base.BindInvokeMember(binder, args);
         }
 
+        public override DynamicMetaObject BindGetMember(GetMemberBinder binder)
+        {
+            return base.BindGetMember(binder);
+        }
+
+        public override DynamicMetaObject BindSetMember(SetMemberBinder binder, DynamicMetaObject value)
+        {
+            return base.BindSetMember(binder, value);
+        }
+
         private DynamicMetaObject WeaveAspect(DynamicMetaObject origObj, IEnumerable aspects, MethodExecutionArgs executionArgs)
         {
             return new DynamicMetaObject(WeaweMethodBoundaryAspect(origObj, aspects, executionArgs), origObj.Restrictions);
