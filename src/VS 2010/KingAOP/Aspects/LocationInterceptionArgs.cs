@@ -16,11 +16,23 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System.Reflection;
+
 namespace KingAOP.Aspects
 {
     /// <summary>
-    /// Base interface for all aspects which should applied to methods.
+    /// Arguments of aspect which in executing for a property.
     /// </summary>
-    internal interface IMethodAspect : IAspect
-    { }
+    public sealed class LocationInterceptionArgs
+    {
+        /// <summary>
+        /// Gets or sets the location value.
+        /// </summary>
+        public object Value { get; set; }
+
+        /// <summary>
+        /// Gets the property location related to the aspect being executed.
+        /// </summary>
+        public PropertyInfo Location { get; set; }
+    }
 }

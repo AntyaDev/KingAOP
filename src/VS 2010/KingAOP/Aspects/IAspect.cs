@@ -21,6 +21,6 @@ namespace KingAOP.Aspects
     /// <summary> 
     /// Base interface for all aspects that are declared
     /// </summary>
-    interface IAspect 
+    internal interface IAspect
     { }
 }

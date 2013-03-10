@@ -24,7 +24,7 @@ namespace KingAOP.Aspects
     /// Represents a class that can wrap itself around any given method call.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public abstract class OnMethodBoundaryAspect : Aspect
+    public abstract class OnMethodBoundaryAspect : Aspect, IMethodAspect
     {
         /// <summary>
         /// Method executed before the body of method to which this aspect is applied.

@@ -16,11 +16,28 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
+
 namespace KingAOP.Aspects
 {
     /// <summary>
-    /// Base interface for all aspects which should applied to methods.
+    /// Aspect that, when applied on a property, intercepts invocations of Get and Set semantics.
     /// </summary>
-    internal interface IMethodAspect : IAspect
-    { }
+    [AttributeUsage(AttributeTargets.Property)]
+    public abstract class LocationInterceptionAspect : Aspect, ILocationInterceptionAspect
+    {
+        /// <summary>
+        /// Method invoked instead of the Get semantic of the property to which the current aspect is applied.
+        /// </summary>
+        /// <param name="args">Property arguments.</param>
+        public virtual void OnGetValue(LocationInterceptionArgs args)
+        { }
+
+        /// <summary>
+        /// Method invoked instead of the Set semantic of the property to which the current aspect is applied.
+        /// </summary>
+        /// <param name="args">Property arguments.</param>
+        public virtual void OnSetValue(LocationInterceptionArgs args)
+        { }
+    }
 }

@@ -22,7 +22,7 @@ using System.Reflection;
 namespace KingAOP.Aspects
 {
     /// <summary>
-    /// Arguments of aspect which in executing
+    /// Arguments of aspect which in executing for a method.
     /// </summary>
     public sealed class MethodExecutionArgs
     {

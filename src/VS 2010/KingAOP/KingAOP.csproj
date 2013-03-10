@@ -44,7 +44,10 @@
     <Compile Include="Aspects\Aspect.cs" />
     <Compile Include="Aspects\FlowBehavior.cs" />
     <Compile Include="Aspects\IAspect.cs" />
+    <Compile Include="Aspects\ILocationInterceptionAspect.cs" />
     <Compile Include="Aspects\IMethodAspect.cs" />
+    <Compile Include="Aspects\LocationInterceptionArgs.cs" />
+    <Compile Include="Aspects\LocationInterceptionAspect.cs" />
     <Compile Include="Aspects\MethodExecutionArgs.cs" />
     <Compile Include="Aspects\OnMethodBoundaryAspect.cs" />
     <Compile Include="Core\AspectCacheFactory.cs" />
