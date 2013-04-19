@@ -22,7 +22,7 @@ namespace KingAOP.Examples.ExceptionHandling
 
         public DynamicMetaObject GetMetaObject(Expression parameter)
         {
-            return new AspectWeaver(parameter, this, typeof(PublicService));
+            return new AspectWeaver(parameter, this);
         }
     }
 }

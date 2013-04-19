@@ -16,7 +16,7 @@ namespace KingAOP.Examples.Logging
 
         public DynamicMetaObject GetMetaObject(Expression parameter)
         {
-            return new AspectWeaver(parameter, this, typeof (TestRepository)); // need for AOP weaving
+            return new AspectWeaver(parameter, this); // need for AOP weaving
         }
     }
 }
