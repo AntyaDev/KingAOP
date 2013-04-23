@@ -50,9 +50,10 @@
     <Compile Include="Aspects\LocationInterceptionAspect.cs" />
     <Compile Include="Aspects\MethodExecutionArgs.cs" />
     <Compile Include="Aspects\OnMethodBoundaryAspect.cs" />
-    <Compile Include="Core\AspectCalls.cs" />
-    <Compile Include="Core\AspectGenerator.cs" />
+    <Compile Include="Core\Methods\AspectCalls.cs" />
+    <Compile Include="Core\Methods\AspectGenerator.cs" />
     <Compile Include="Core\AspectWeaver.cs" />
+    <Compile Include="Core\Properties\AspectCalls.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

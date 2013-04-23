@@ -23,8 +23,9 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 using KingAOP.Aspects;
+using KingAOP.Core.Methods;
 
-namespace KingAOP.Core
+namespace KingAOP
 {
     /// <summary>
     /// Represent weaver for weaving aspects. 
@@ -40,24 +41,24 @@ namespace KingAOP.Core
 
         public override DynamicMetaObject BindInvokeMember(InvokeMemberBinder binder, DynamicMetaObject[] args)
         {
+            var metaObj = base.BindInvokeMember(binder, args);
+
             var argsTypes = GetArgumentsTypes(args);
             var method = _objType.GetMethod(binder.Name,
                 BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
                 argsTypes,
                 null);
-
+            
             if (method != null && method.IsDefined(typeof(IAspect), false))
             {
-                var aspects = new SortedList<int, object>(new InvertedComparer());
-                foreach (Aspect attribute in method.GetCustomAttributes(typeof(Aspect), false))
-                {
-                    var aspect = Activator.CreateInstance(attribute.GetType());
-                    aspects.Add(attribute.AspectPriority, aspect);
-                }
-                return WeaveAspect(base.BindInvokeMember(binder, args), aspects.Values, new MethodExecutionArgs(Value, method, new Arguments(args)));
+                var aspects = RetrieveAspects(method);
+                var methodArgs = new MethodExecutionArgs(Value, method, new Arguments(args));
+                var weavedMethod = new AspectGenerator(metaObj, aspects, methodArgs).GenerateMethod();
+                metaObj = new DynamicMetaObject(weavedMethod, metaObj.Restrictions);
             }
-            return base.BindInvokeMember(binder, args);
+
+            return metaObj;
         }
 
         public override DynamicMetaObject BindGetMember(GetMemberBinder binder)
@@ -70,15 +71,15 @@ namespace KingAOP.Core
             return base.BindSetMember(binder, value);
         }
 
-        private DynamicMetaObject WeaveAspect(DynamicMetaObject origObj, IEnumerable aspects, MethodExecutionArgs executionArgs)
+        private IEnumerable RetrieveAspects(MemberInfo member)
         {
-            return new DynamicMetaObject(WeaweMethodBoundaryAspect(origObj, aspects, executionArgs), origObj.Restrictions);
-        }
-
-        private Expression WeaweMethodBoundaryAspect(DynamicMetaObject origObj, IEnumerable aspects, MethodExecutionArgs executionArgs)
-        {
-            var aspectGenerator = new AspectGenerator(origObj, aspects, executionArgs);
-            return aspectGenerator.GenerateMethod();
+            var aspects = new SortedList<int, object>(new InvertedComparer());
+            foreach (Aspect aspect in member.GetCustomAttributes(typeof(Aspect), false))
+            {
+                var instance = Activator.CreateInstance(aspect.GetType());
+                aspects.Add(aspect.AspectPriority, instance);
+            }
+            return aspects.Values;
         }
 
         private Type[] GetArgumentsTypes(DynamicMetaObject[] args)

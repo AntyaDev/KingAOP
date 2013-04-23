@@ -23,7 +23,7 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using KingAOP.Aspects;
 
-namespace KingAOP.Core
+namespace KingAOP.Core.Methods
 {
     /// <summary>
     /// Represent functional to generate aspects.
