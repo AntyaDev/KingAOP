@@ -26,7 +26,7 @@ namespace KingAOP.Tests.MethodBoundaryTests.OnEntry
 
         public DynamicMetaObject GetMetaObject(Expression parameter)
         {
-            return new AspectWeaver(parameter, this, typeof(MyTestClass));
+            return new AspectWeaver(parameter, this);
         }
     }
 }
