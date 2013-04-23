@@ -1,6 +1,5 @@
 ﻿using System.Dynamic;
 using System.Linq.Expressions;
-using KingAOP.Core;
 using KingAOP.Examples.TestData;
 
 namespace KingAOP.Examples.Logging

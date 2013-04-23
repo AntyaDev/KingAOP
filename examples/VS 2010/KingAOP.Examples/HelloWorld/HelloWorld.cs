@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Dynamic;
 using System.Linq.Expressions;
-using KingAOP.Core;
 
 namespace KingAOP.Examples.HelloWorld
 {
