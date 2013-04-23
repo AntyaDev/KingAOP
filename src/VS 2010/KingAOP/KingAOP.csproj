@@ -52,7 +52,7 @@
     <Compile Include="Aspects\OnMethodBoundaryAspect.cs" />
     <Compile Include="Core\Methods\AspectCalls.cs" />
     <Compile Include="Core\Methods\AspectGenerator.cs" />
-    <Compile Include="Core\AspectWeaver.cs" />
+    <Compile Include="AspectWeaver.cs" />
     <Compile Include="Core\Properties\AspectCalls.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
