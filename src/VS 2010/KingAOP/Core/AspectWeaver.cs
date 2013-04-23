@@ -86,9 +86,9 @@ namespace KingAOP.Core
             var argsTypes = new Type[args.Length];
             for (int i = 0; i < args.Length; i++)
             {
-                argsTypes[0] = ((ParameterExpression)args[0].Expression).IsByRef
-                    ? args[0].RuntimeType.MakeByRefType()
-                    : args[0].RuntimeType;
+                argsTypes[i] = ((ParameterExpression)args[i].Expression).IsByRef
+                    ? args[i].RuntimeType.MakeByRefType()
+                    : args[i].RuntimeType;
             }
             return argsTypes;
         }
