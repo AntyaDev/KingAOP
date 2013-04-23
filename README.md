@@ -38,7 +38,7 @@ class HelloWorld : IDynamicMetaObjectProvider
 
     public DynamicMetaObject GetMetaObject(Expression parameter)
     {
-        return new AspectWeaver(parameter, this, typeof(HelloWorld));
+        return new AspectWeaver(parameter, this);
     }
 }
 ```
