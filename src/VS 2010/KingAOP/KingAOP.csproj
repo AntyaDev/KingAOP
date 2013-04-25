@@ -54,6 +54,7 @@
     <Compile Include="Core\Methods\AspectGenerator.cs" />
     <Compile Include="AspectWeaver.cs" />
     <Compile Include="Core\Properties\AspectCalls.cs" />
+    <Compile Include="Core\Properties\AspectGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

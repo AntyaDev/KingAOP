@@ -23,7 +23,8 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 using KingAOP.Aspects;
-using KingAOP.Core.Methods;
+using Methods = KingAOP.Core.Methods;
+using Properties = KingAOP.Core.Properties;
 
 namespace KingAOP
 {
@@ -54,7 +55,7 @@ namespace KingAOP
             {
                 var aspects = RetrieveAspects(method);
                 var methodArgs = new MethodExecutionArgs(Value, method, new Arguments(args));
-                var weavedMethod = new AspectGenerator(metaObj, aspects, methodArgs).GenerateMethod();
+                var weavedMethod = new Methods.AspectGenerator(metaObj, aspects, methodArgs).GenerateMethod();
                 metaObj = new DynamicMetaObject(weavedMethod, metaObj.Restrictions);
             }
 
@@ -63,7 +64,20 @@ namespace KingAOP
 
         public override DynamicMetaObject BindGetMember(GetMemberBinder binder)
         {
-            return base.BindGetMember(binder);
+            var metaObj = base.BindGetMember(binder);
+
+            var property = _objType.GetProperty(binder.Name,
+                BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            if (property != null && property.IsDefined(typeof(IAspect), false))
+            {
+                var aspects = RetrieveAspects(property);
+                var args = new LocationInterceptionArgs(Value, property, null);
+                var weavedProperty = new Properties.AspectGenerator(metaObj, aspects, args).GenerateProperty();
+                metaObj = new DynamicMetaObject(weavedProperty, metaObj.Restrictions);
+            }
+
+            return metaObj;
         }
 
         public override DynamicMetaObject BindSetMember(SetMemberBinder binder, DynamicMetaObject value)
