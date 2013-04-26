@@ -82,7 +82,20 @@ namespace KingAOP
 
         public override DynamicMetaObject BindSetMember(SetMemberBinder binder, DynamicMetaObject value)
         {
-            return base.BindSetMember(binder, value);
+            var metaObj = base.BindSetMember(binder, value);
+
+            var property = _objType.GetProperty(binder.Name,
+                BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            if (property != null && property.IsDefined(typeof(IAspect), false))
+            {
+                var aspects = RetrieveAspects(property);
+                var args = new LocationInterceptionArgs(Value, property, value);
+                var weavedProperty = new Properties.AspectGenerator(metaObj, aspects, args).GenerateProperty();
+                metaObj = new DynamicMetaObject(weavedProperty, metaObj.Restrictions);
+            }
+
+            return metaObj;
         }
 
         private IEnumerable RetrieveAspects(MemberInfo member)
