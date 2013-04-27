@@ -16,23 +16,64 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq.Expressions;
 using KingAOP.Aspects;
 
 namespace KingAOP.Core.Properties
 {
     internal class SetterGenerator
     {
+        private readonly Expression _origSetter;
+        private readonly BindingRestrictions _rule;
+        private readonly List<Expression> _aspects;
+
         public SetterGenerator(DynamicMetaObject origObj, IEnumerable aspects, LocationInterceptionArgs args)
         {
-            throw new NotImplementedException();
+            _origSetter = origObj.Expression;
+            _rule = origObj.Restrictions;
+            _aspects = GenerateAspectCalls(aspects, args);
         }
 
         public DynamicMetaObject Generate()
         {
-            throw new NotImplementedException();
+            Expression setter = null;
+            for (int i = 0; i < _aspects.Count; i++)
+            {
+                if (i == 0)
+                {
+                    setter = Expression.Block(
+                    new[]
+                    {
+                        _aspects[i],
+                        _origSetter
+                    });
+                }
+                else
+                {
+                    setter = Expression.Block(
+                    new[]
+                    {
+                        _aspects[i],
+                        setter
+                    });
+                }
+            }
+            return new DynamicMetaObject(setter, _rule);
+        }
+
+        private List<Expression> GenerateAspectCalls(IEnumerable aspects, LocationInterceptionArgs args)
+        {
+            var aspectCalls = new List<Expression>();
+            foreach (var aspect in aspects)
+            {
+                aspectCalls.Add(
+                    Expression.Call(Expression.Constant(aspect), typeof(LocationInterceptionAspect).GetMethod("OnSetValue"),
+                    Expression.Constant(args)));
+            }
+            return aspectCalls;
         }
     }
 }
