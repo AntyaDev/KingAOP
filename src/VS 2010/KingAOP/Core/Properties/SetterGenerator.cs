@@ -16,38 +16,23 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.Dynamic;
 using KingAOP.Aspects;
 
 namespace KingAOP.Core.Properties
 {
-    /// <summary>
-    /// Represent a container for an all aspects which should be applied for a specific property
-    /// </summary>
-    internal class AspectCalls
+    internal class SetterGenerator
     {
-        public List<Expression> GetValueCalls { get; private set; }
-        public List<Expression> SetValueCalls { get; private set; }
-
-        private AspectCalls()
+        public SetterGenerator(DynamicMetaObject origObj, IEnumerable aspects, LocationInterceptionArgs args)
         {
-            GetValueCalls = new List<Expression>();
-            SetValueCalls = new List<Expression>();
+            throw new NotImplementedException();
         }
 
-        public AspectCalls(IEnumerable aspects, Expression args, ParameterExpression retValue) : this()
+        public DynamicMetaObject Generate()
         {
-            foreach (var aspect in aspects)
-            {
-                var methBoundAsp = aspect as LocationInterceptionAspect;
-                if (methBoundAsp != null)
-                {
-                    GetValueCalls.Add(Expression.Call(Expression.Constant(aspect), typeof(LocationInterceptionAspect).GetMethod("OnGetValue")));
-                    SetValueCalls.Add(Expression.Call(Expression.Constant(aspect), typeof(LocationInterceptionAspect).GetMethod("OnSetValue"), args));
-                }
-            }
+            throw new NotImplementedException();
         }
     }
 }

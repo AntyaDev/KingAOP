@@ -23,8 +23,8 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 using KingAOP.Aspects;
-using Methods = KingAOP.Core.Methods;
-using Properties = KingAOP.Core.Properties;
+using KingAOP.Core.Methods;
+using KingAOP.Core.Properties;
 
 namespace KingAOP
 {
@@ -55,10 +55,8 @@ namespace KingAOP
             {
                 var aspects = RetrieveAspects(method);
                 var methodArgs = new MethodExecutionArgs(Value, method, new Arguments(args));
-                var weavedMethod = new Methods.AspectGenerator(metaObj, aspects, methodArgs).GenerateMethod();
-                metaObj = new DynamicMetaObject(weavedMethod, metaObj.Restrictions);
+                metaObj = new MethodGenerator(metaObj, aspects, methodArgs).Generate();
             }
-
             return metaObj;
         }
 
@@ -73,10 +71,8 @@ namespace KingAOP
             {
                 var aspects = RetrieveAspects(property);
                 var args = new LocationInterceptionArgs(Value, property, null);
-                var weavedProperty = new Properties.AspectGenerator(metaObj, aspects, args).GenerateProperty();
-                metaObj = new DynamicMetaObject(weavedProperty, metaObj.Restrictions);
+                metaObj = new GetterGenerator(metaObj, aspects, args).Generate();
             }
-
             return metaObj;
         }
 
@@ -91,10 +87,8 @@ namespace KingAOP
             {
                 var aspects = RetrieveAspects(property);
                 var args = new LocationInterceptionArgs(Value, property, value);
-                var weavedProperty = new Properties.AspectGenerator(metaObj, aspects, args).GenerateProperty();
-                metaObj = new DynamicMetaObject(weavedProperty, metaObj.Restrictions);
+                metaObj = new SetterGenerator(metaObj, aspects, args).Generate();
             }
-
             return metaObj;
         }
 

@@ -26,58 +26,60 @@ using KingAOP.Aspects;
 namespace KingAOP.Core.Methods
 {
     /// <summary>
-    /// Represent functional to generate aspects.
+    /// Represent functional to generate method with aspects.
     /// </summary>
-    internal class AspectGenerator
+    internal class MethodGenerator
     {
-        private readonly DynamicMetaObject _origObj;
+        private readonly Expression _origMethod;
+        private readonly BindingRestrictions _rule;
         private readonly IEnumerable _aspects;
-        private readonly MethodExecutionArgs _methodExecutionArgs;
+        private readonly MethodExecutionArgs _args;
 
-        public AspectGenerator(DynamicMetaObject origObj, IEnumerable aspects, MethodExecutionArgs methodExecutionArgs)
+        public MethodGenerator(DynamicMetaObject origObj, IEnumerable aspects, MethodExecutionArgs args)
         {
-            _origObj = origObj;
+            _origMethod = origObj.Expression;
+            _rule = origObj.Restrictions;
             _aspects = aspects;
-            _methodExecutionArgs = methodExecutionArgs;
+            _args = args;
         }
 
-        public Expression GenerateMethod()
+        public DynamicMetaObject Generate()
         {
-            var retType = _methodExecutionArgs.Method.ReturnType != typeof (void)
-                              ? _methodExecutionArgs.Method.ReturnType
+            var retType = _args.Method.ReturnType != typeof (void)
+                              ? _args.Method.ReturnType
                               : typeof (object);
 
             ParameterExpression retMethodValue = Expression.Parameter(retType);
-            Expression methArgEx = Expression.Constant(_methodExecutionArgs);
-            var aspctCal = new AspectCalls(_aspects, methArgEx, retMethodValue);
+            Expression argsEx = Expression.Constant(_args);
+            var aspctCal = new AspectCalls(_aspects, argsEx, retMethodValue);
 
-            Expression methExpr = null;
+            Expression method = null;
             for (int i = 0; i < aspctCal.EntryCalls.Count; i++)
             {
                 if (i == 0)
                 {
-                    methExpr = Expression.Block(
+                    method = Expression.Block(
                     new []
                     {
-                        AssignMethodArgsByRetValue(methArgEx, retMethodValue),
+                        AssignMethodArgsByRetValue(argsEx, retMethodValue),
                         aspctCal.EntryCalls[i],
                         Expression.TryCatchFinally(
-                        GenerateInvokeCall(aspctCal, methArgEx, retMethodValue),
+                        GenerateInvokeCall(aspctCal, argsEx, retMethodValue),
                         aspctCal.ExitCalls[i],
-                        GenerateCatchBlock(methArgEx, aspctCal.ExceptionCalls[i], retMethodValue))
+                        GenerateCatchBlock(argsEx, aspctCal.ExceptionCalls[i], retMethodValue))
                     });
                 }
                 else
                 {
-                    methExpr = Expression.Block(
+                    method = Expression.Block(
                     new []
                     {
                         aspctCal.EntryCalls[i],
-                        Expression.TryCatchFinally(Expression.Block(methExpr, aspctCal.SuccessCalls[i]), aspctCal.ExitCalls[i])
+                        Expression.TryCatchFinally(Expression.Block(method, aspctCal.SuccessCalls[i]), aspctCal.ExitCalls[i])
                     });
                 }
             }
-            return Expression.Block(new[] { retMethodValue }, methExpr, Expression.Convert(retMethodValue, typeof(object)));
+            return new DynamicMetaObject(Expression.Block(new[] { retMethodValue }, method, Expression.Convert(retMethodValue, typeof(object))), _rule);
         }
 
         private CatchBlock GenerateCatchBlock(Expression methArgEx, Expression exceptionCall, ParameterExpression retMethodValue)
@@ -116,14 +118,14 @@ namespace KingAOP.Core.Methods
         {
             var invokeCalls = new List<Expression>();
 
-            if (_methodExecutionArgs.Method.ReturnType != typeof(void))
+            if (_args.Method.ReturnType != typeof(void))
             {
-                invokeCalls.Add(Expression.Assign(retMethodValue, Expression.Convert(_origObj.Expression, retMethodValue.Type))); // [ returnValue = interceptedMethod.Call(); ]
+                invokeCalls.Add(Expression.Assign(retMethodValue, Expression.Convert(_origMethod, retMethodValue.Type))); // [ returnValue = interceptedMethod.Call(); ]
                 invokeCalls.Add(AssignMethodArgsByRetValue(methArgEx, retMethodValue));  // [ MethodExecutionArgs.ReturnValue = returnValue; ]
             }
             else
             {
-                invokeCalls.Add(_origObj.Expression); // [ interceptedMethod.Call(); ]
+                invokeCalls.Add(_origMethod); // [ interceptedMethod.Call(); ]
             }
 
             invokeCalls.Add(aspectCalls.SuccessCalls[0]);
