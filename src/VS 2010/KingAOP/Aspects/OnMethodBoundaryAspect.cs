@@ -28,6 +28,7 @@ namespace KingAOP.Aspects
     {
         /// <summary>
         /// Method executed before the body of method to which this aspect is applied.
+        /// OnEntry method is a perfect place where to implement the logic such as input parameters logging, caching, authentication/authorization.
         /// </summary>
         /// <param name="args">Method arguments including return value and all necessary info.</param>
         public virtual void OnEntry(MethodExecutionArgs args) 
@@ -35,7 +36,8 @@ namespace KingAOP.Aspects
 
         /// <summary>
         /// Method executed after the body of method to which this aspect is applied
-        /// (this method is invoked from the finally block, it's mean that this method will be invoked in any way)
+        /// (this method is invoked from the finally block, it's mean that this method will be invoked in any way).
+        /// This is a good place where to log the return value, inform other applications that the method has finished the execution.
         /// </summary>
         /// <param name="args">Method arguments including return value and all necessary info.</param>
         public virtual void OnExit(MethodExecutionArgs args) 
@@ -43,7 +45,7 @@ namespace KingAOP.Aspects
 
         /// <summary>
         /// Method executed after the body of method to which this aspect is applied, 
-        /// but only when the method successfully returns
+        /// but only when the method successfully returns.
         /// </summary>
         /// <param name="args">Method arguments including return value and all necessary info.</param>
         public virtual void OnSuccess(MethodExecutionArgs args)
@@ -51,6 +53,7 @@ namespace KingAOP.Aspects
 
         /// <summary>
         /// When an exception is happened then this method will be called.
+        /// This is a perfect place to log the error messages in an generic way and do something useful with that information.
         /// </summary>
         /// <param name="args">Method arguments including return value and all necessary info.</param>
         public virtual void OnException(MethodExecutionArgs args) 
