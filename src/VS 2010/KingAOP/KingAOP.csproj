@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Aspects\AdviceArgs.cs" />
     <Compile Include="Aspects\Arguments.cs" />
     <Compile Include="Aspects\Aspect.cs" />
     <Compile Include="Aspects\FlowBehavior.cs" />
