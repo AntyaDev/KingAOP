@@ -50,6 +50,7 @@
     <Compile Include="Aspects\LocationInterceptionArgs.cs" />
     <Compile Include="Aspects\LocationInterceptionAspect.cs" />
     <Compile Include="Aspects\MethodExecutionArgs.cs" />
+    <Compile Include="Aspects\MethodInterceptionArgs.cs" />
     <Compile Include="Aspects\OnMethodBoundaryAspect.cs" />
     <Compile Include="Core\Methods\AspectCalls.cs" />
     <Compile Include="Core\Methods\MethodGenerator.cs" />
