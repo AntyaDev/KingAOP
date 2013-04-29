@@ -24,19 +24,13 @@ namespace KingAOP.Aspects
     /// <summary>
     /// Arguments of aspect which in executing for a method.
     /// </summary>
-    public sealed class MethodExecutionArgs
+    public class MethodExecutionArgs : AdviceArgs
     {
-        public MethodExecutionArgs(object instance, MethodInfo method, Arguments arguments)
+        public MethodExecutionArgs(object instance, MethodInfo method, Arguments arguments) : base(instance)
         {
-            Instance = instance;
             Method = method;
             Arguments = arguments;
         }
-
-        /// <summary>
-        ///  Gets the object instance on which the method is being executed.
-        /// </summary>
-        public object Instance { get; private set; }
 
         /// <summary>
         /// Gets the method being executed.
@@ -51,7 +45,7 @@ namespace KingAOP.Aspects
         /// <summary>
         /// Gets the arguments with which the method has been invoked.
         /// </summary>
-        public Arguments Arguments { get; set; }
+        public Arguments Arguments { get; private set; }
 
         /// <summary>
         /// Gets or sets the method return value.

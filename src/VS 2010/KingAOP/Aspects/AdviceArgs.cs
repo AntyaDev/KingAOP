@@ -31,6 +31,6 @@ namespace KingAOP.Aspects
         /// <summary>
         /// Gets or sets the object instance on which the method is being executed.
         /// </summary>
-        public object Instance { get; set; }
+        public object Instance { get; private set; }
     }
 }

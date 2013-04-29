@@ -23,11 +23,10 @@ namespace KingAOP.Aspects
     /// <summary>
     /// Arguments of aspect which in executing for a property.
     /// </summary>
-    public sealed class LocationInterceptionArgs
+    public class LocationInterceptionArgs : AdviceArgs
     {
-        public LocationInterceptionArgs(object instance, PropertyInfo property, object value)
+        public LocationInterceptionArgs(object instance, PropertyInfo property, object value) : base(instance)
         {
-            Instance = instance;
             Location = property;
             Value = value;
         }
@@ -36,11 +35,6 @@ namespace KingAOP.Aspects
         /// Gets or sets the location value.
         /// </summary>
         public object Value { get; set; }
-
-        /// <summary>
-        ///  Gets the object instance on which the method is being executed.
-        /// </summary>
-        public object Instance { get; private set; }
 
         /// <summary>
         /// Gets the property location related to the aspect being executed.
