@@ -50,12 +50,19 @@ namespace KingAOP
                 null,
                 argsTypes,
                 null);
-            
-            if (method != null && method.IsDefined(typeof(IAspect), false))
+
+            if (method != null && method.IsDefined(typeof(IMethodAspect), false))
             {
                 var aspects = RetrieveAspects(method);
-                var methodArgs = new MethodExecutionArgs(Value, method, new Arguments(args));
-                metaObj = new MethodGenerator(metaObj, aspects, methodArgs).Generate();
+
+                if (method.IsDefined(typeof(OnMethodBoundaryAspect), false))
+                {
+                    metaObj = new BoundaryAspectGenerator(metaObj, aspects, method, args).Generate();
+                }
+                else
+                {
+                    metaObj = new InterceptionAspectGenerator(metaObj, aspects, method, args).Generate();
+                }
             }
             return metaObj;
         }

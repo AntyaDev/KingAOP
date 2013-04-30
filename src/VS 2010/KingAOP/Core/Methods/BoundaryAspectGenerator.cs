@@ -21,33 +21,31 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq.Expressions;
+using System.Reflection;
 using KingAOP.Aspects;
 
 namespace KingAOP.Core.Methods
 {
-    /// <summary>
-    /// Represent functional to generate method with aspects.
-    /// </summary>
-    internal class MethodGenerator
+    internal class BoundaryAspectGenerator
     {
         private readonly Expression _origMethod;
         private readonly BindingRestrictions _rule;
         private readonly IEnumerable _aspects;
         private readonly MethodExecutionArgs _args;
 
-        public MethodGenerator(DynamicMetaObject origObj, IEnumerable aspects, MethodExecutionArgs args)
+        public BoundaryAspectGenerator(DynamicMetaObject origObj, IEnumerable aspects, MethodInfo method, IEnumerable<DynamicMetaObject> args)
         {
             _origMethod = origObj.Expression;
             _rule = origObj.Restrictions;
             _aspects = aspects;
-            _args = args;
+            _args = new MethodExecutionArgs(origObj.Value, method, new Arguments(args));
         }
 
         public DynamicMetaObject Generate()
         {
-            var retType = _args.Method.ReturnType != typeof (void)
+            var retType = _args.Method.ReturnType != typeof(void)
                               ? _args.Method.ReturnType
-                              : typeof (object);
+                              : typeof(object);
 
             ParameterExpression retMethodValue = Expression.Parameter(retType);
             Expression argsEx = Expression.Constant(_args);
@@ -59,7 +57,7 @@ namespace KingAOP.Core.Methods
                 if (i == 0)
                 {
                     method = Expression.Block(
-                    new []
+                    new[]
                     {
                         AssignMethodArgsByRetValue(argsEx, retMethodValue),
                         aspctCal.EntryCalls[i],
@@ -72,7 +70,7 @@ namespace KingAOP.Core.Methods
                 else
                 {
                     method = Expression.Block(
-                    new []
+                    new[]
                     {
                         aspctCal.EntryCalls[i],
                         Expression.TryCatchFinally(Expression.Block(method, aspctCal.SuccessCalls[i]), aspctCal.ExitCalls[i])
