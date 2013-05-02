@@ -16,8 +16,39 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+
 namespace KingAOP.Core
 {
+    internal delegate object LateBoundMethod(object target, object[] arguments);
+
     internal class DelegateFactory
-    { }
+    {
+        public static LateBoundMethod Create(MethodInfo method)
+        {
+            ParameterExpression instance = Expression.Parameter(typeof(object), "target");
+            ParameterExpression args = Expression.Parameter(typeof(object[]), "arguments");
+
+            MethodCallExpression call = Expression.Call(
+              Expression.Convert(instance, method.DeclaringType),
+              method,
+              CreateParameterExpressions(method, args));
+
+            Expression<LateBoundMethod> lambda = Expression.Lambda<LateBoundMethod>(
+              Expression.Convert(call, typeof(object)),
+              instance,
+              args);
+
+            return lambda.Compile();
+        }
+
+        private static Expression[] CreateParameterExpressions(MethodInfo method, Expression argumentsParameter)
+        {
+            return method.GetParameters().Select((parameter, index) =>
+              Expression.Convert(
+                Expression.ArrayIndex(argumentsParameter, Expression.Constant(index)), parameter.ParameterType)).ToArray();
+        }
+    }
 }
