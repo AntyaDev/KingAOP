@@ -29,7 +29,7 @@ namespace KingAOP.Aspects
     {
         private readonly List<object> _objects = new List<object>();
 
-        public Arguments(IEnumerable<DynamicMetaObject> objects)
+        public Arguments(IEnumerable<object> objects)
         {
             _objects.AddRange(objects);
         }
