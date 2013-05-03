@@ -23,6 +23,7 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 using KingAOP.Aspects;
+using System.Linq;
 
 namespace KingAOP.Core.Methods
 {
@@ -38,7 +39,7 @@ namespace KingAOP.Core.Methods
             _origMethod = origObj.Expression;
             _rule = origObj.Restrictions;
             _aspects = aspects;
-            _args = new MethodExecutionArgs(origObj.Value, method, new Arguments(args));
+            _args = new MethodExecutionArgs(origObj.Value, method, new Arguments(args.Select(x => x.Value)));
         }
 
         public DynamicMetaObject Generate()
