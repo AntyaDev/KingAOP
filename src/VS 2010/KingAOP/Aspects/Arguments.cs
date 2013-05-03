@@ -25,7 +25,7 @@ namespace KingAOP.Aspects
     /// <summary>
     /// Encapsulation of method arguments.
     /// </summary>
-    public sealed class Arguments
+    public class Arguments : IEnumerable<object>
     {
         private readonly List<object> _objects = new List<object>();
 
@@ -44,10 +44,20 @@ namespace KingAOP.Aspects
         {
             get { return _objects.Count; }
         }
-
-        public IEnumerator GetEnumerator()
+        
+        public IEnumerator<object> GetEnumerator()
         {
             return _objects.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public object[] ToArray()
+        {
+            return _objects.ToArray();
         }
     }
 }
