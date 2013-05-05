@@ -22,26 +22,33 @@ using System.Reflection;
 
 namespace KingAOP.Core
 {
-    internal delegate object LateBoundMethod(object target, object[] arguments);
+    internal delegate object LateBoundFunction(object[] arguments);
+    internal delegate void LateBoundCall(object[] arguments);
 
     internal class DelegateFactory
     {
-        public static LateBoundMethod Create(MethodInfo method)
+        public static LateBoundFunction CreateFunction(object instance, MethodInfo method)
         {
-            ParameterExpression instance = Expression.Parameter(typeof(object), "target");
             ParameterExpression args = Expression.Parameter(typeof(object[]), "arguments");
 
             MethodCallExpression call = Expression.Call(
-              Expression.Convert(instance, method.DeclaringType),
+              Expression.Constant(instance),
               method,
               CreateParameterExpressions(method, args));
 
-            Expression<LateBoundMethod> lambda = Expression.Lambda<LateBoundMethod>(
-              Expression.Convert(call, typeof(object)),
-              instance,
-              args);
+            return Expression.Lambda<LateBoundFunction>(Expression.Convert(call, typeof(object)), args).Compile();
+        }
 
-            return lambda.Compile();
+        public static LateBoundCall CreateMethodCall(object instance, MethodInfo method)
+        {
+            ParameterExpression args = Expression.Parameter(typeof(object[]), "arguments");
+
+            MethodCallExpression call = Expression.Call(
+              Expression.Constant(instance),
+              method,
+              CreateParameterExpressions(method, args));
+
+            return Expression.Lambda<LateBoundCall>(call, args).Compile();
         }
 
         private static Expression[] CreateParameterExpressions(MethodInfo method, Expression argumentsParameter)

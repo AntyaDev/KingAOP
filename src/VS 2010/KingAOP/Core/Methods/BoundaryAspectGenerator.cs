@@ -34,12 +34,12 @@ namespace KingAOP.Core.Methods
         private readonly IEnumerable _aspects;
         private readonly MethodExecutionArgs _args;
 
-        public BoundaryAspectGenerator(DynamicMetaObject origObj, IEnumerable aspects, MethodInfo method, IEnumerable<DynamicMetaObject> args)
+        public BoundaryAspectGenerator(object instance, DynamicMetaObject metaObj, IEnumerable aspects, MethodInfo method, IEnumerable<DynamicMetaObject> args)
         {
-            _origMethod = origObj.Expression;
-            _rule = origObj.Restrictions;
+            _origMethod = metaObj.Expression;
+            _rule = metaObj.Restrictions;
             _aspects = aspects;
-            _args = new MethodExecutionArgs(origObj.Value, method, new Arguments(args.Select(x => x.Value)));
+            _args = new MethodExecutionArgs(instance, method, new Arguments(args.Select(x => x.Value)));
         }
 
         public DynamicMetaObject Generate()

@@ -16,17 +16,17 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using System;
 using System.Reflection;
 
 namespace KingAOP.Aspects
 {
     /// <summary>
-    ///  Arguments of aspect which in executing for a method.
+    ///  Abstract class for arguments of aspect which intercept a method.
     /// </summary>
-    public class MethodInterceptionArgs : AdviceArgs
+    public abstract class MethodInterceptionArgs : AdviceArgs
     {
-        protected MethodInterceptionArgs(object instance, MethodInfo method, Arguments arguments) : base(instance)
+        internal MethodInterceptionArgs(object instance, MethodInfo method, Arguments arguments) 
+            : base(instance)
         {
             Method = method;
             Arguments = arguments;
@@ -35,7 +35,7 @@ namespace KingAOP.Aspects
         /// <summary>
         /// Gets the method being executed.
         /// </summary>
-        public MethodBase Method { get; private set; }
+        public MethodInfo Method { get; private set; }
 
         /// <summary>
         /// Gets the arguments with which the method has been invoked.
@@ -52,9 +52,6 @@ namespace KingAOP.Aspects
         /// passing the current <see cref="Arguments"/> to that method 
         /// and storing its return value into the property <see cref="ReturnValue"/>
         /// </summary>
-        public void Proceed()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void Proceed();
     }
 }
