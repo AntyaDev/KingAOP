@@ -25,8 +25,14 @@ namespace KingAOP.Core
     internal delegate object LateBoundFunction(object[] arguments);
     internal delegate void LateBoundCall(object[] arguments);
 
+    /// <summary>
+    /// This factory creates delegate to call any method.
+    /// </summary>
     internal class DelegateFactory
     {
+        /// <summary>
+        /// Creates a delegate to wrap a "function" (method which has return value).
+        /// </summary>
         public static LateBoundFunction CreateFunction(object instance, MethodInfo method)
         {
             ParameterExpression args = Expression.Parameter(typeof(object[]), "arguments");
@@ -39,6 +45,9 @@ namespace KingAOP.Core
             return Expression.Lambda<LateBoundFunction>(Expression.Convert(call, typeof(object)), args).Compile();
         }
 
+        /// <summary>
+        /// Creates a delegate to wrap a "siple method call" (method which has not return value, just returns void).
+        /// </summary>
         public static LateBoundCall CreateMethodCall(object instance, MethodInfo method)
         {
             ParameterExpression args = Expression.Parameter(typeof(object[]), "arguments");
