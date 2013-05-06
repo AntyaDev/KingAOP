@@ -26,21 +26,20 @@ namespace KingAOP.Examples.Logging
             str.AppendLine(string.Format(methodStage + " {0} ", args.Method));
             foreach (var argument in args.Arguments)
             {
-                var argObj = (DynamicMetaObject)argument;
-                var argType = argObj.Value.GetType();
+                var argType = argument.GetType();
 
                 str.Append(argType.Name + ": ");
 
                 if (argType == typeof(string) || argType.IsPrimitive)
                 {
-                    str.Append(argObj.Value);
+                    str.Append(argument);
                 }
                 else
                 {
                     foreach (var property in argType.GetProperties())
                     {
                         str.AppendFormat("{0} = {1}; ",
-                            property.Name, property.GetValue(argObj.Value, null));
+                            property.Name, property.GetValue(argument, null));
                     }
                 }
             }
