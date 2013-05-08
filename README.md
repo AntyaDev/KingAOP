@@ -7,7 +7,7 @@ The concept of aspect-oriented programming (AOP) offers an interesting alternati
 ##How it works?
 It‘s use a dynamic opportunities of C# 4.0 instead of IL rewriting technique which the PostSharp use. And that brings us to a predictable and clean model. You can look through an AOP weaving stuff in very easy way.
 
-##A Basic example:
+##Basic example:
 * Implement a hello world aspect.
 
 
@@ -48,3 +48,5 @@ class HelloWorld : IDynamicMetaObjectProvider
 dynamic helloWorld = new HelloWorld();
 helloWorld.HelloWorldCall();
 ```
+##Logging example:
+Using the above studied concept, we will now attempt to develop a simple logger which will use AOP to log information. It’s canonical example of AOP, as without it:). Like with PostSharp we have to inherit from the OnMethoBoundaryAspect and override the OnEntry and OnExit methods.  
