@@ -36,6 +36,11 @@ namespace KingAOP.Aspects
             _args = arguments.ToArray();
         }
 
+        /// <summary>
+        ///  Proceeds with invocation of the method that has been intercepted by calling the next node in the chain of invocation, 
+        /// passing the current <see cref="Arguments"/> to that method 
+        /// and storing its return value into the property ReturnValue.
+        /// </summary>
         public override void Proceed()
         {
             ReturnValue = _function.Invoke(_args);

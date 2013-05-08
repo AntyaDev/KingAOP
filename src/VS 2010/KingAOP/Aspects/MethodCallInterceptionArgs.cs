@@ -36,6 +36,10 @@ namespace KingAOP.Aspects
             _args = arguments.ToArray();
         }
 
+        /// <summary>
+        /// Proceeds with invocation of the method that has been intercepted by calling the next node in the chain of invocation, 
+        /// passing the current <see cref="Arguments"/> to that method. 
+        /// </summary>
         public override void Proceed()
         {
             _call.Invoke(_args);
