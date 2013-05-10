@@ -50,3 +50,22 @@ helloWorld.HelloWorldCall();
 ```
 ##Logging example:
 Using the above studied concept, we will now attempt to develop a simple logger which will use AOP to log information. It’s canonical example of AOP, as without it:). Like with PostSharp we have to inherit from the OnMethoBoundaryAspect and override the OnEntry and OnExit methods.  
+
+* Create LoggingAspect.
+
+```csharp
+internal class LoggingAspect : OnMethodBoundaryAspect
+{
+    public override void OnEntry(MethodExecutionArgs args)
+    {
+        string logData = CreateLogData("Entering", args);
+        Console.WriteLine(logData);
+    }
+
+    public override void OnExit(MethodExecutionArgs args)
+    {
+        string logData = CreateLogData("Leaving", args);
+        Console.WriteLine(logData);
+    }
+}
+```
