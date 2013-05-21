@@ -77,7 +77,7 @@ namespace KingAOP
             if (property != null && property.IsDefined(typeof(IAspect), false))
             {
                 var aspects = RetrieveAspects(property);
-                var args = new LocationInterceptionArgs(Value, property, null);
+                var args = new PropertyInterceptionArgs(Value, property, null);
                 metaObj = new GetterGenerator(metaObj, aspects, args).Generate();
             }
             return metaObj;
@@ -93,7 +93,7 @@ namespace KingAOP
             if (property != null && property.IsDefined(typeof(IAspect), false))
             {
                 var aspects = RetrieveAspects(property);
-                var args = new LocationInterceptionArgs(Value, property, value);
+                var args = new PropertyInterceptionArgs(Value, property, value);
                 metaObj = new SetterGenerator(metaObj, aspects, args).Generate();
             }
             return metaObj;

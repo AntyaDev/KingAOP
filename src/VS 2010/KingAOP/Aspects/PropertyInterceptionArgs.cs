@@ -17,31 +17,37 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.Reflection;
 
 namespace KingAOP.Aspects
 {
     /// <summary>
-    /// Aspect that, when applied on a property, intercepts invocations of Get and Set semantics.
+    ///  Arguments of aspect which intercepts invocations of property.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public abstract class LocationInterceptionAspect : Aspect, ILocationInterceptionAspect
+    internal class PropertyInterceptionArgs : LocationInterceptionArgs
     {
-        /// <summary>
-        /// Method invoked instead of the Get semantic of the property to which the current aspect is applied.
-        /// </summary>
-        /// <param name="args">Property arguments.</param>
-        public virtual void OnGetValue(LocationInterceptionArgs args)
+        public PropertyInterceptionArgs(object instance, PropertyInfo property, object value) 
+            : base(instance, property, value)
+        { }
+
+        public override object GetCurrentValue()
         {
-            args.ProceedGetValue();
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Method invoked instead of the Set semantic of the property to which the current aspect is applied.
-        /// </summary>
-        /// <param name="args">Property arguments.</param>
-        public virtual void OnSetValue(LocationInterceptionArgs args)
+        public override void ProceedGetValue()
         {
-            args.ProceedSetValue();
+            throw new NotImplementedException();
+        }
+
+        public override void ProceedSetValue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetNewValue(object value)
+        {
+            throw new NotImplementedException();
         }
     }
 }
