@@ -137,4 +137,47 @@ namespace KingAOP.Core.Methods
             return Expression.Call(methArgEx, typeof(MethodExecutionArgs).GetProperty("ReturnValue").GetSetMethod(), Expression.Convert(retMethodValue, typeof(object)));
         }
     }
+
+    /// <summary>
+    /// Represent a container for an all aspects which should be applied for a specific method
+    /// </summary>
+    internal class AspectCalls
+    {
+        public List<Expression> EntryCalls { get; private set; }
+        public List<Expression> SuccessCalls { get; private set; }
+        public List<Expression> ExceptionCalls { get; private set; }
+        public List<Expression> ExitCalls { get; private set; }
+
+        private AspectCalls()
+        {
+            EntryCalls = new List<Expression>();
+            SuccessCalls = new List<Expression>();
+            ExceptionCalls = new List<Expression>();
+            ExitCalls = new List<Expression>();
+        }
+
+        public AspectCalls(IEnumerable aspects, Expression args, ParameterExpression retValue) : this()
+        {
+            foreach (var aspect in aspects)
+            {
+                var methBoundAsp = aspect as OnMethodBoundaryAspect;
+                if (methBoundAsp != null)
+                {
+                    EntryCalls.Add(Expression.Call(Expression.Constant(aspect), typeof(OnMethodBoundaryAspect).GetMethod("OnEntry"), args));
+                    SuccessCalls.Add(GenerateCall("OnSuccess", methBoundAsp, args, retValue));
+                    ExceptionCalls.Add(Expression.Call(Expression.Constant(aspect), typeof (OnMethodBoundaryAspect).GetMethod("OnException"), args));
+                    ExitCalls.Add(GenerateCall("OnExit", methBoundAsp, args, retValue));
+                }
+            }
+        }
+
+        private Expression GenerateCall(string methodName, OnMethodBoundaryAspect aspect, Expression args, ParameterExpression retValue)
+        {
+            return Expression.Block(
+                Expression.Call(Expression.Constant(aspect), typeof(OnMethodBoundaryAspect).GetMethod(methodName), args),
+                Expression.Assign(retValue,
+                Expression.Convert(
+                Expression.Call(args, typeof(MethodExecutionArgs).GetProperty("ReturnValue").GetGetMethod()), retValue.Type)));
+        }
+    }
 }

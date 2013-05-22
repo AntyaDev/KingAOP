@@ -56,7 +56,6 @@
     <Compile Include="Aspects\MethodInterceptionArgs.cs" />
     <Compile Include="Aspects\MethodInterceptionAspect.cs" />
     <Compile Include="Aspects\OnMethodBoundaryAspect.cs" />
-    <Compile Include="Core\Methods\AspectCalls.cs" />
     <Compile Include="Core\Methods\InterceptionAspectGenerator.cs" />
     <Compile Include="Core\Methods\BoundaryAspectGenerator.cs" />
     <Compile Include="AspectWeaver.cs" />
