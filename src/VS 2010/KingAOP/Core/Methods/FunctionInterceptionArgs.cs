@@ -17,9 +17,9 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System.Reflection;
-using KingAOP.Core;
+using KingAOP.Aspects;
 
-namespace KingAOP.Aspects
+namespace KingAOP.Core.Methods
 {
     /// <summary>
     ///  Arguments of aspect which intercept a method with return value.

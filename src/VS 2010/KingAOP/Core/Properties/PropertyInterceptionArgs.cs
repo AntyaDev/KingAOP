@@ -18,8 +18,9 @@
 
 using System;
 using System.Reflection;
+using KingAOP.Aspects;
 
-namespace KingAOP.Aspects
+namespace KingAOP.Core.Properties
 {
     /// <summary>
     ///  Arguments of aspect which intercepts invocations of property.
