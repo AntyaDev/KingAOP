@@ -19,47 +19,35 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using KingAOP.Aspects;
 
 namespace KingAOP.Core.Properties
 {
     internal class GetterGenerator
     {
-        private readonly Expression _origGetter;
         private readonly BindingRestrictions _rule;
         private readonly List<Expression> _aspects;
 
-        public GetterGenerator(DynamicMetaObject origObj, IEnumerable aspects, LocationInterceptionArgs args)
+        public GetterGenerator(object instance, DynamicMetaObject metaObj, IEnumerable aspects, PropertyInfo property) 
         {
-            _origGetter = origObj.Expression;
-            _rule = origObj.Restrictions;
-            _aspects = GenerateAspectCalls(aspects, args);
+            _rule = metaObj.Restrictions;
+            _aspects = GenerateAspectCalls(aspects, new PropertyInterceptionArgs(instance, property, null));
         }
 
         public DynamicMetaObject Generate()
         {
-            Expression getter = null;
-            for (int i = 0; i < _aspects.Count; i++)
+            Expression getter = Expression.Block(_aspects.First(), Expression.Default(typeof(object)));
+            for (int i = 1; i < _aspects.Count; i++)
             {
-                if (i == 0)
+                getter = Expression.Block(
+                new[]
                 {
-                    getter = Expression.Block(
-                    new[]
-                    {
-                        _aspects[i],
-                        _origGetter
-                    });
-                }
-                else
-                {
-                    getter = Expression.Block(
-                    new[]
-                    {
-                        _aspects[i],
-                        getter
-                    });
-                }
+                    _aspects[i],
+                    getter
+                });
             }
             return new DynamicMetaObject(getter, _rule);
         }

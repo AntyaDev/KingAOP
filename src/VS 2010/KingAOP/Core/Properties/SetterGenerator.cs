@@ -19,7 +19,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using KingAOP.Aspects;
 
 namespace KingAOP.Core.Properties
@@ -30,36 +32,24 @@ namespace KingAOP.Core.Properties
         private readonly BindingRestrictions _rule;
         private readonly List<Expression> _aspects;
 
-        public SetterGenerator(DynamicMetaObject origObj, IEnumerable aspects, LocationInterceptionArgs args)
+        public SetterGenerator(object instance, DynamicMetaObject metaObj, IEnumerable aspects, PropertyInfo property, DynamicMetaObject value)
         {
-            _origSetter = origObj.Expression;
-            _rule = origObj.Restrictions;
-            _aspects = GenerateAspectCalls(aspects, args);
+            _origSetter = metaObj.Expression;
+            _rule = metaObj.Restrictions;
+            _aspects = GenerateAspectCalls(aspects, new PropertyInterceptionArgs(instance, property, value.Value));
         }
 
         public DynamicMetaObject Generate()
         {
-            Expression setter = null;
-            for (int i = 0; i < _aspects.Count; i++)
+            Expression setter = Expression.Block(_aspects.First(), Expression.Default(typeof(object)));
+            for (int i = 1; i < _aspects.Count; i++)
             {
-                if (i == 0)
+                setter = Expression.Block(
+                new[]
                 {
-                    setter = Expression.Block(
-                    new[]
-                    {
-                        _aspects[i],
-                        _origSetter
-                    });
-                }
-                else
-                {
-                    setter = Expression.Block(
-                    new[]
-                    {
-                        _aspects[i],
-                        setter
-                    });
-                }
+                    _aspects[i],
+                    setter
+                });
             }
             return new DynamicMetaObject(setter, _rule);
         }
