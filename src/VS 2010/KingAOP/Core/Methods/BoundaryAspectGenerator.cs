@@ -52,31 +52,25 @@ namespace KingAOP.Core.Methods
             Expression argsEx = Expression.Constant(_args);
             var aspctCal = new AspectCalls(_aspects, argsEx, retMethodValue);
 
-            Expression method = null;
-            for (int i = 0; i < aspctCal.EntryCalls.Count; i++)
-            {
-                if (i == 0)
-                {
-                    method = Expression.Block(
+            Expression method = Expression.Block(
                     new[]
                     {
                         AssignMethodArgsByRetValue(argsEx, retMethodValue),
-                        aspctCal.EntryCalls[i],
+                        aspctCal.EntryCalls.First(),
                         Expression.TryCatchFinally(
                         GenerateInvokeCall(aspctCal, argsEx, retMethodValue),
-                        aspctCal.ExitCalls[i],
-                        GenerateCatchBlock(argsEx, aspctCal.ExceptionCalls[i], retMethodValue))
+                        aspctCal.ExitCalls.First(),
+                        GenerateCatchBlock(argsEx, aspctCal.ExceptionCalls.First(), retMethodValue))
                     });
-                }
-                else
+
+            for (int i = 1; i < aspctCal.EntryCalls.Count; i++)
+            {
+                method = Expression.Block(
+                new[]
                 {
-                    method = Expression.Block(
-                    new[]
-                    {
-                        aspctCal.EntryCalls[i],
-                        Expression.TryCatchFinally(Expression.Block(method, aspctCal.SuccessCalls[i]), aspctCal.ExitCalls[i])
-                    });
-                }
+                    aspctCal.EntryCalls[i],
+                    Expression.TryCatchFinally(Expression.Block(method, aspctCal.SuccessCalls[i]), aspctCal.ExitCalls[i])
+                });
             }
             return new DynamicMetaObject(Expression.Block(new[] { retMethodValue }, method, Expression.Convert(retMethodValue, typeof(object))), _rule);
         }
