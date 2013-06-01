@@ -16,6 +16,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Reflection;
 
 namespace KingAOP.Aspects
@@ -28,7 +29,7 @@ namespace KingAOP.Aspects
         internal LocationInterceptionArgs(object instance, PropertyInfo property, object value) : base(instance)
         {
             Location = property;
-            Value = value;
+            Value = property.PropertyType.IsValueType ? Activator.CreateInstance(property.PropertyType) : null;
         }
 
         /// <summary>
