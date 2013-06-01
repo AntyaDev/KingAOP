@@ -30,26 +30,30 @@ namespace KingAOP.Core.Properties
     {
         private readonly BindingRestrictions _rule;
         private readonly List<Expression> _aspects;
+        private readonly PropertyInterceptionArgs _args;
 
         public GetterGenerator(object instance, DynamicMetaObject metaObj, IEnumerable aspects, PropertyInfo property) 
         {
             _rule = metaObj.Restrictions;
-            _aspects = GenerateAspectCalls(aspects, new PropertyInterceptionArgs(instance, property, null));
+            _args = new PropertyInterceptionArgs(instance, property, null);
+            _aspects = GenerateAspectCalls(aspects, _args);
         }
 
         public DynamicMetaObject Generate()
         {
-            Expression getter = Expression.Block(_aspects.First(), Expression.Default(typeof(object)));
+            ParameterExpression retValue = Expression.Parameter(typeof(object));
+
+            var retValueExpr = Expression.Assign(retValue,
+                Expression.Call(Expression.Constant(_args),
+                typeof (PropertyInterceptionArgs).GetProperty("Value").GetGetMethod()));
+
+            Expression getter = Expression.Block(_aspects.First(), retValueExpr);
             for (int i = 1; i < _aspects.Count; i++)
             {
                 getter = Expression.Block(
-                new[]
-                {
-                    _aspects[i],
-                    getter
-                });
+                new[] { _aspects[i], getter });
             }
-            return new DynamicMetaObject(getter, _rule);
+            return new DynamicMetaObject(Expression.Block(new[] { retValue }, getter), _rule);
         }
 
         private List<Expression> GenerateAspectCalls(IEnumerable aspects, LocationInterceptionArgs args)
