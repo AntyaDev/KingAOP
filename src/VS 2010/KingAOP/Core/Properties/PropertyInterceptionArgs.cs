@@ -34,9 +34,15 @@ namespace KingAOP.Core.Properties
         public PropertyInterceptionArgs(object instance, PropertyInfo property, object value) 
             : base(instance, property, value)
         {
-            _getter = DelegateFactory.CreateFunction(instance, property.GetGetMethod(nonPublic: true));
-            _setter = DelegateFactory.CreateMethodCall(instance, property.GetSetMethod(nonPublic: true));
-            _args = new [] { Value };
+            var getter = property.GetGetMethod(nonPublic: true);
+            
+            if (getter != null) _getter = DelegateFactory.CreateFunction(instance, getter);
+
+            var setter = property.GetSetMethod(nonPublic: true);
+            
+            if (setter != null) _setter = DelegateFactory.CreateMethodCall(instance, setter);
+
+            _args = new[] { Value };
         }
 
         public override object GetCurrentValue()
@@ -46,7 +52,7 @@ namespace KingAOP.Core.Properties
 
         public override void ProceedGetValue()
         {
-            _getter(null);
+            Value = _getter(null);
         }
 
         public override void ProceedSetValue()
