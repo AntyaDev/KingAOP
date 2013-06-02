@@ -26,13 +26,13 @@ namespace KingAOP.Core.Methods
     /// </summary>
     internal class MethodCallInterceptionArgs : MethodInterceptionArgs
     {
-        private readonly LateBoundCall _call;
+        private readonly LateBoundMethodCall _methodCall;
         private readonly object[] _args;
 
-        public MethodCallInterceptionArgs(object instance, MethodInfo method, Arguments arguments, LateBoundCall call) 
+        public MethodCallInterceptionArgs(object instance, MethodInfo method, Arguments arguments, LateBoundMethodCall methodCall) 
             : base(instance, method, arguments)
         {
-            _call = call;
+            _methodCall = methodCall;
             _args = arguments.ToArray();
         }
 
@@ -42,7 +42,7 @@ namespace KingAOP.Core.Methods
         /// </summary>
         public override void Proceed()
         {
-            _call.Invoke(_args);
+            _methodCall.Invoke(_args);
         }
     }
 }

@@ -29,7 +29,10 @@ namespace KingAOP.Aspects
         internal LocationInterceptionArgs(object instance, PropertyInfo property, object value) : base(instance)
         {
             Location = property;
-            Value = property.PropertyType.IsValueType ? Activator.CreateInstance(property.PropertyType) : null;
+            
+            if (value != null) Value = value;
+
+            else Value = property.PropertyType.IsValueType ? Activator.CreateInstance(property.PropertyType) : null;
         }
 
         /// <summary>
