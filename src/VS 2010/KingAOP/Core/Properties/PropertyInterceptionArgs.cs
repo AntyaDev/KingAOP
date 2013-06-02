@@ -27,22 +27,19 @@ namespace KingAOP.Core.Properties
     /// </summary>
     internal class PropertyInterceptionArgs : LocationInterceptionArgs
     {
-        private readonly LateBoundFunction _getter;
-        private readonly LateBoundCall _setter;
-        private readonly object[] _args;
+        private readonly LateBoundGetter _getter;
+        private readonly LateBoundSetter _setter;
 
         public PropertyInterceptionArgs(object instance, PropertyInfo property, object value) 
             : base(instance, property, value)
         {
             var getter = property.GetGetMethod(nonPublic: true);
             
-            if (getter != null) _getter = DelegateFactory.CreateFunction(instance, getter);
+            if (getter != null) _getter = DelegateFactory.CreateGetter(instance, getter);
 
             var setter = property.GetSetMethod(nonPublic: true);
             
-            if (setter != null) _setter = DelegateFactory.CreateMethodCall(instance, setter);
-
-            _args = new[] { Value };
+            if (setter != null) _setter = DelegateFactory.CreateSetter(instance, setter);
         }
 
         public override object GetCurrentValue()
@@ -52,12 +49,12 @@ namespace KingAOP.Core.Properties
 
         public override void ProceedGetValue()
         {
-            Value = _getter(null);
+            Value = _getter();
         }
 
         public override void ProceedSetValue()
         {
-            _setter(_args);
+            _setter(Value);
         }
 
         public override void SetNewValue(object value)
