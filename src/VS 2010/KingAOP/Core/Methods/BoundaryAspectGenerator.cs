@@ -44,35 +44,31 @@ namespace KingAOP.Core.Methods
 
         public DynamicMetaObject Generate()
         {
-            var retType = _args.Method.ReturnType != typeof(void)
-                              ? _args.Method.ReturnType
-                              : typeof(object);
-
-            ParameterExpression retMethodValue = Expression.Parameter(retType);
+            ParameterExpression retMethodValue = Expression.Parameter(typeof(object));
             Expression argsEx = Expression.Constant(_args);
-            var aspctCal = new AspectCalls(_aspects, argsEx, retMethodValue);
+            var aspectCalls = new AspectCalls(_aspects, argsEx, retMethodValue);
 
             Expression method = Expression.Block(
                     new[]
                     {
                         AssignMethodArgsByRetValue(argsEx, retMethodValue),
-                        aspctCal.EntryCalls.First(),
+                        aspectCalls.EntryCalls.First(),
                         Expression.TryCatchFinally(
-                        GenerateInvokeCall(aspctCal, argsEx, retMethodValue),
-                        aspctCal.ExitCalls.First(),
-                        GenerateCatchBlock(argsEx, aspctCal.ExceptionCalls.First(), retMethodValue))
+                        GenerateInvokeCall(aspectCalls, argsEx, retMethodValue),
+                        aspectCalls.ExitCalls.First(),
+                        GenerateCatchBlock(argsEx, aspectCalls.ExceptionCalls.First(), retMethodValue))
                     });
 
-            for (int i = 1; i < aspctCal.EntryCalls.Count; i++)
+            for (int i = 1; i < aspectCalls.EntryCalls.Count; i++)
             {
                 method = Expression.Block(
                 new[]
                 {
-                    aspctCal.EntryCalls[i],
-                    Expression.TryCatchFinally(Expression.Block(method, aspctCal.SuccessCalls[i]), aspctCal.ExitCalls[i])
+                    aspectCalls.EntryCalls[i],
+                    Expression.TryCatchFinally(Expression.Block(method, aspectCalls.SuccessCalls[i]), aspectCalls.ExitCalls[i])
                 });
             }
-            return new DynamicMetaObject(Expression.Block(new[] { retMethodValue }, method, Expression.Convert(retMethodValue, typeof(object))), _rule);
+            return new DynamicMetaObject(Expression.Block(new[] { retMethodValue }, method, retMethodValue), _rule);
         }
 
         private CatchBlock GenerateCatchBlock(Expression methArgEx, Expression exceptionCall, ParameterExpression retMethodValue)
@@ -113,7 +109,7 @@ namespace KingAOP.Core.Methods
 
             if (_args.Method.ReturnType != typeof(void))
             {
-                invokeCalls.Add(Expression.Assign(retMethodValue, Expression.Convert(_origMethod, retMethodValue.Type))); // [ returnValue = interceptedMethod.Call(); ]
+                invokeCalls.Add(Expression.Assign(retMethodValue, _origMethod)); // [ returnValue = interceptedMethod.Call(); ]
                 invokeCalls.Add(AssignMethodArgsByRetValue(methArgEx, retMethodValue));  // [ MethodExecutionArgs.ReturnValue = returnValue; ]
             }
             else
@@ -128,7 +124,7 @@ namespace KingAOP.Core.Methods
         // [ MethodExecutionArgs.ReturnValue = returnValue; ]
         private Expression AssignMethodArgsByRetValue(Expression methArgEx, ParameterExpression retMethodValue)
         {
-            return Expression.Call(methArgEx, typeof(MethodExecutionArgs).GetProperty("ReturnValue").GetSetMethod(), Expression.Convert(retMethodValue, typeof(object)));
+            return Expression.Call(methArgEx, typeof(MethodExecutionArgs).GetProperty("ReturnValue").GetSetMethod(), retMethodValue);
         }
     }
 
@@ -168,10 +164,9 @@ namespace KingAOP.Core.Methods
         private Expression GenerateCall(string methodName, OnMethodBoundaryAspect aspect, Expression args, ParameterExpression retValue)
         {
             return Expression.Block(
-                Expression.Call(Expression.Constant(aspect), typeof(OnMethodBoundaryAspect).GetMethod(methodName), args),
+                Expression.Call(Expression.Constant(aspect), typeof (OnMethodBoundaryAspect).GetMethod(methodName), args),
                 Expression.Assign(retValue,
-                Expression.Convert(
-                Expression.Call(args, typeof(MethodExecutionArgs).GetProperty("ReturnValue").GetGetMethod()), retValue.Type)));
+                Expression.Call(args, typeof (MethodExecutionArgs).GetProperty("ReturnValue").GetGetMethod())));
         }
     }
 }
