@@ -47,6 +47,7 @@
     <Compile Include="ExceptionHandling\PublicService.cs" />
     <Compile Include="HelloWorld\HelloWorld.cs" />
     <Compile Include="HelloWorld\HelloWorldAspect.cs" />
+    <Compile Include="InterceptInvocation\ArgumentValidationAspect.cs" />
     <Compile Include="Logging\LoggingAspect.cs" />
     <Compile Include="Logging\TestRepository.cs" />
     <Compile Include="Program.cs" />
@@ -59,9 +60,7 @@
       <Name>KingAOP</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="InterceptInvocation\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
