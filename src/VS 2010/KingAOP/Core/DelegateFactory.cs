@@ -16,6 +16,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -72,6 +73,14 @@ namespace KingAOP.Core
         {
             MethodCallExpression call = Expression.Call(Expression.Constant(instance), method);
             return Expression.Lambda<LateBoundGetter>(Expression.Convert(call, typeof(object))).Compile();
+        }
+
+        public Delegate CreateDelegate(object instance, MethodInfo method)
+        {
+            ParameterExpression[] argsExp = method.GetParameters().Select(
+                arg => Expression.Parameter(arg.ParameterType, arg.Name)).ToArray();
+            MethodCallExpression call = Expression.Call(Expression.Constant(instance), method, argsExp);
+            return Expression.Lambda(call, argsExp).Compile();
         }
 
         private static Expression[] CreateParameterExpressions(MethodInfo method, Expression argumentsParameter)
