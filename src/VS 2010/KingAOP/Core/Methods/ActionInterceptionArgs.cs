@@ -22,28 +22,27 @@ using KingAOP.Aspects;
 namespace KingAOP.Core.Methods
 {
     /// <summary>
-    ///  Arguments of aspect which intercept a method with return value.
+    ///  Arguments of aspect which intercept a method without return value.
     /// </summary>
-    internal class FunctionInterceptionArgs : MethodInterceptionArgs
+    internal class ActionInterceptionArgs : MethodInterceptionArgs
     {
-        private readonly LateBoundFunction _function;
-        private readonly object[] _args;
+        readonly LateBoundAction _action;
+        readonly object[] _argsValues;
 
-        public FunctionInterceptionArgs(object instance, MethodInfo method, Arguments arguments, LateBoundFunction function)
-            : base(instance, method, arguments)
+        public ActionInterceptionArgs(object instance, MethodInfo method, object[] argsValues, LateBoundAction action) 
+            : base(instance, method, new Arguments(argsValues))
         {
-            _function = function;
-            _args = arguments.ToArray();
+            _action = action;
+            _argsValues = argsValues;
         }
 
         /// <summary>
-        ///  Proceeds with invocation of the method that has been intercepted by calling the next node in the chain of invocation, 
-        /// passing the current <see cref="Arguments"/> to that method 
-        /// and storing its return value into the property ReturnValue.
+        /// Proceeds with invocation of the method that has been intercepted by calling the next node in the chain of invocation, 
+        /// passing the current <see cref="Arguments"/> to that method. 
         /// </summary>
         public override void Proceed()
         {
-            ReturnValue = _function.Invoke(_args);
+            _action.Invoke(_argsValues);
         }
     }
 }

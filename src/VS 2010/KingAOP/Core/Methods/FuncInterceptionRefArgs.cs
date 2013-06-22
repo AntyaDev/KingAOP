@@ -16,33 +16,35 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Reflection;
 using KingAOP.Aspects;
 
 namespace KingAOP.Core.Methods
 {
     /// <summary>
-    ///  Arguments of aspect which intercept a method without return value.
+    ///  Arguments of aspect which intercept a method with return value and parameters passed by reference.
     /// </summary>
-    internal class MethodCallInterceptionArgs : MethodInterceptionArgs
+    internal class FuncInterceptionRefArgs : MethodInterceptionArgs
     {
-        private readonly LateBoundMethodCall _methodCall;
-        private readonly object[] _args;
+        private readonly Delegate _func;
+        private readonly object[] _argsValues;
 
-        public MethodCallInterceptionArgs(object instance, MethodInfo method, Arguments arguments, LateBoundMethodCall methodCall) 
-            : base(instance, method, arguments)
+        public FuncInterceptionRefArgs(object instance, MethodInfo method, object[] argsValues, Delegate func)
+            : base(instance, method, new Arguments(argsValues))
         {
-            _methodCall = methodCall;
-            _args = arguments.ToArray();
+            _func = func;
+            _argsValues = argsValues;
         }
 
         /// <summary>
-        /// Proceeds with invocation of the method that has been intercepted by calling the next node in the chain of invocation, 
-        /// passing the current <see cref="Arguments"/> to that method. 
+        ///  Proceeds with invocation of the method that has been intercepted by calling the next node in the chain of invocation, 
+        /// passing the current <see cref="Arguments"/> to that method 
+        /// and storing its return value into the property ReturnValue.
         /// </summary>
         public override void Proceed()
         {
-            _methodCall.Invoke(_args);
+            ReturnValue = _func.DynamicInvoke(_argsValues);
         }
     }
 }

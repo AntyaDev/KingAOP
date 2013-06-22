@@ -16,49 +16,34 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using System.Reflection;
+using KingAOP.Aspects;
 
-namespace KingAOP.Aspects
+namespace KingAOP.Core.Methods
 {
     /// <summary>
-    /// Encapsulation of method arguments.
+    ///  Arguments of aspect which intercept a method without return value and parameters passed by reference.
     /// </summary>
-    public class Arguments : IEnumerable<object>
+    internal class ActionInterceptionRefArgs : MethodInterceptionArgs
     {
-        readonly object[] _objects;
+        private readonly Delegate _action;
+        private readonly object[] _argsValues;
 
-        public Arguments(object[] objects)
+        public ActionInterceptionRefArgs(object instance, MethodInfo method, object[] argsValues, Delegate action)
+            : base(instance, method, new Arguments(argsValues))
         {
-            _objects = objects;
+            _action = action;
+            _argsValues = argsValues;
         }
 
-        public object this[int index]
+        /// <summary>
+        /// Proceeds with invocation of the method that has been intercepted by calling the next node in the chain of invocation, 
+        /// passing the current <see cref="Arguments"/> to that method. 
+        /// </summary>
+        public override void Proceed()
         {
-            get { return _objects[index]; }
-            set { _objects[index] = value; }
-        }
-
-        public int Count
-        {
-            get { return _objects.Length; }
-        }
-
-        public object[] ToArray()
-        {
-            var array = new object[Count];
-            _objects.CopyTo(array, 0);
-            return array;
-        }
-
-        public IEnumerator<object> GetEnumerator()
-        {
-            yield return _objects;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
+            _action.DynamicInvoke(_argsValues);
         }
     }
 }

@@ -32,9 +32,9 @@ namespace KingAOP.Core.Properties
         private readonly List<Expression> _aspects;
         private readonly PropertyInterceptionArgs _args;
 
-        public GetterGenerator(object instance, DynamicMetaObject metaObj, IEnumerable aspects, PropertyInfo property) 
+        public GetterGenerator(object instance, BindingRestrictions rule, IEnumerable aspects, PropertyInfo property) 
         {
-            _rule = metaObj.Restrictions;
+            _rule = rule;
             _args = new PropertyInterceptionArgs(instance, property, null);
             _aspects = GenerateAspectCalls(aspects, _args);
         }

@@ -23,8 +23,8 @@ using System.Reflection;
 
 namespace KingAOP.Core
 {
-    internal delegate object LateBoundFunction(object[] arguments);
-    internal delegate void LateBoundMethodCall(object[] arguments);
+    internal delegate object LateBoundFunc(object[] arguments);
+    internal delegate void LateBoundAction(object[] arguments);
     internal delegate void LateBoundSetter(object value);
     internal delegate object LateBoundGetter();
 
@@ -36,27 +36,27 @@ namespace KingAOP.Core
         /// <summary>
         /// Creates a delegate to wrap a "function" (method which has return value).
         /// </summary>
-        public static LateBoundFunction CreateFunction(object instance, MethodInfo method)
+        public static LateBoundFunc CreateFunction(object instance, MethodInfo method)
         {
             ParameterExpression args = Expression.Parameter(typeof(object[]), "arguments");
             MethodCallExpression call = Expression.Call(
                 Expression.Constant(instance),
                 method,
                 CreateParameterExpressions(method, args));
-            return Expression.Lambda<LateBoundFunction>(Expression.Convert(call, typeof(object)), args).Compile();
+            return Expression.Lambda<LateBoundFunc>(Expression.Convert(call, typeof(object)), args).Compile();
         }
 
         /// <summary>
         /// Creates a delegate to wrap a "siple method call" (method which has not return value, just returns void).
         /// </summary>
-        public static LateBoundMethodCall CreateMethodCall(object instance, MethodInfo method)
+        public static LateBoundAction CreateMethodCall(object instance, MethodInfo method)
         {
             ParameterExpression args = Expression.Parameter(typeof(object[]), "arguments");
             MethodCallExpression call = Expression.Call(
                 Expression.Constant(instance),
                 method,
                 CreateParameterExpressions(method, args));
-            return Expression.Lambda<LateBoundMethodCall>(call, args).Compile();
+            return Expression.Lambda<LateBoundAction>(call, args).Compile();
         }
 
         public static LateBoundSetter CreateSetter(object instance, MethodInfo method)
@@ -75,7 +75,7 @@ namespace KingAOP.Core
             return Expression.Lambda<LateBoundGetter>(Expression.Convert(call, typeof(object))).Compile();
         }
 
-        public Delegate CreateDelegate(object instance, MethodInfo method)
+        public static Delegate CreateDelegate(object instance, MethodInfo method)
         {
             ParameterExpression[] argsExp = method.GetParameters().Select(
                 arg => Expression.Parameter(arg.ParameterType, arg.Name)).ToArray();

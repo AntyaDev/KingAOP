@@ -29,17 +29,17 @@ namespace KingAOP.Core.Methods
 {
     internal class BoundaryAspectGenerator
     {
-        private readonly Expression _origMethod;
-        private readonly BindingRestrictions _rule;
-        private readonly IEnumerable _aspects;
-        private readonly MethodExecutionArgs _args;
+        readonly Expression _origMethod;
+        readonly BindingRestrictions _rule;
+        readonly IEnumerable _aspects;
+        readonly MethodExecutionArgs _args;
 
         public BoundaryAspectGenerator(object instance, DynamicMetaObject metaObj, IEnumerable aspects, MethodInfo method, IEnumerable<DynamicMetaObject> args)
         {
             _origMethod = metaObj.Expression;
             _rule = metaObj.Restrictions;
             _aspects = aspects;
-            _args = new MethodExecutionArgs(instance, method, new Arguments(args.Select(x => x.Value)));
+            _args = new MethodExecutionArgs(instance, method, new Arguments(args.Select(x => x.Value).ToArray()));
         }
 
         public DynamicMetaObject Generate()
@@ -49,15 +49,15 @@ namespace KingAOP.Core.Methods
             var aspectCalls = new AspectCalls(_aspects, argsEx, retMethodValue);
 
             Expression method = Expression.Block(
-                    new[]
-                    {
-                        AssignMethodArgsByRetValue(argsEx, retMethodValue),
-                        aspectCalls.EntryCalls.First(),
-                        Expression.TryCatchFinally(
-                        GenerateInvokeCall(aspectCalls, argsEx, retMethodValue),
-                        aspectCalls.ExitCalls.First(),
-                        GenerateCatchBlock(argsEx, aspectCalls.ExceptionCalls.First(), retMethodValue))
-                    });
+            new[]
+            {
+                AssignMethodArgsByRetValue(argsEx, retMethodValue),
+                aspectCalls.EntryCalls.First(),
+                Expression.TryCatchFinally(
+                GenerateInvokeCall(aspectCalls, argsEx, retMethodValue),
+                aspectCalls.ExitCalls.First(),
+                GenerateCatchBlock(argsEx, aspectCalls.ExceptionCalls.First(), retMethodValue))
+            });
 
             for (int i = 1; i < aspectCalls.EntryCalls.Count; i++)
             {
@@ -71,7 +71,7 @@ namespace KingAOP.Core.Methods
             return new DynamicMetaObject(Expression.Block(new[] { retMethodValue }, method, retMethodValue), _rule);
         }
 
-        private CatchBlock GenerateCatchBlock(Expression methArgEx, Expression exceptionCall, ParameterExpression retMethodValue)
+        CatchBlock GenerateCatchBlock(Expression methArgEx, Expression exceptionCall, ParameterExpression retMethodValue)
         {
             var curEx = Expression.Parameter(typeof(Exception));
             return Expression.Catch(curEx,
@@ -82,7 +82,7 @@ namespace KingAOP.Core.Methods
                 retMethodValue));
         }
 
-        private SwitchExpression GenerateSwitchExpession(Expression methArgEx)
+        SwitchExpression GenerateSwitchExpession(Expression methArgEx)
         {
             return Expression.Switch(
                 Expression.Call(methArgEx, typeof(MethodExecutionArgs).GetProperty("FlowBehavior").GetGetMethod()),
@@ -103,7 +103,7 @@ namespace KingAOP.Core.Methods
                 });
         }
 
-        private Expression GenerateInvokeCall(AspectCalls aspectCalls, Expression methArgEx, ParameterExpression retMethodValue)
+        Expression GenerateInvokeCall(AspectCalls aspectCalls, Expression methArgEx, ParameterExpression retMethodValue)
         {
             var invokeCalls = new List<Expression>();
 
@@ -122,7 +122,7 @@ namespace KingAOP.Core.Methods
         }
 
         // [ MethodExecutionArgs.ReturnValue = returnValue; ]
-        private Expression AssignMethodArgsByRetValue(Expression methArgEx, ParameterExpression retMethodValue)
+        Expression AssignMethodArgsByRetValue(Expression methArgEx, ParameterExpression retMethodValue)
         {
             return Expression.Call(methArgEx, typeof(MethodExecutionArgs).GetProperty("ReturnValue").GetSetMethod(), retMethodValue);
         }
@@ -161,7 +161,7 @@ namespace KingAOP.Core.Methods
             }
         }
 
-        private Expression GenerateCall(string methodName, OnMethodBoundaryAspect aspect, Expression args, ParameterExpression retValue)
+        Expression GenerateCall(string methodName, OnMethodBoundaryAspect aspect, Expression args, ParameterExpression retValue)
         {
             return Expression.Block(
                 Expression.Call(Expression.Constant(aspect), typeof (OnMethodBoundaryAspect).GetMethod(methodName), args),

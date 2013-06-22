@@ -33,7 +33,7 @@ namespace KingAOP
     /// </summary>
     public class AspectWeaver : DynamicMetaObject
     {
-        private readonly Type _objType;
+        readonly Type _objType;
 
         public AspectWeaver(Expression expression, object obj) : base(expression, BindingRestrictions.Empty, obj)
         {
@@ -61,7 +61,7 @@ namespace KingAOP
                 }
                 else
                 {
-                    metaObj = new InterceptionAspectGenerator(Value, metaObj, aspects, method, args).Generate();
+                    metaObj = new InterceptionAspectGenerator(Value, metaObj.Restrictions, aspects, method, args, argsTypes).Generate();
                 }
             }
             return metaObj;
@@ -77,7 +77,7 @@ namespace KingAOP
             if (property != null && property.IsDefined(typeof(IAspect), false))
             {
                 var aspects = RetrieveAspects(property);
-                metaObj = new GetterGenerator(Value, metaObj, aspects, property).Generate();
+                metaObj = new GetterGenerator(Value, metaObj.Restrictions, aspects, property).Generate();
             }
             return metaObj;
         }
@@ -97,7 +97,7 @@ namespace KingAOP
             return metaObj;
         }
 
-        private IEnumerable RetrieveAspects(MemberInfo member)
+        IEnumerable RetrieveAspects(MemberInfo member)
         {
             var aspects = new SortedList<int, object>(new InvertedComparer());
             foreach (Aspect aspect in member.GetCustomAttributes(typeof(Aspect), false))
@@ -108,7 +108,7 @@ namespace KingAOP
             return aspects.Values;
         }
 
-        private Type[] GetArgumentsTypes(DynamicMetaObject[] args)
+        Type[] GetArgumentsTypes(DynamicMetaObject[] args)
         {
             var argsTypes = new Type[args.Length];
             for (int i = 0; i < args.Length; i++)

@@ -43,10 +43,12 @@
     <Compile Include="Aspects\AdviceArgs.cs" />
     <Compile Include="Aspects\Arguments.cs" />
     <Compile Include="Aspects\Aspect.cs" />
+    <Compile Include="Core\Methods\FuncInterceptionRefArgs.cs" />
+    <Compile Include="Core\Methods\ActionInterceptionRefArgs.cs" />
     <Compile Include="Core\Properties\PropertyInterceptionArgs.cs" />
-    <Compile Include="Core\Methods\MethodCallInterceptionArgs.cs" />
+    <Compile Include="Core\Methods\ActionInterceptionArgs.cs" />
     <Compile Include="Aspects\FlowBehavior.cs" />
-    <Compile Include="Core\Methods\FunctionInterceptionArgs.cs" />
+    <Compile Include="Core\Methods\FuncInterceptionArgs.cs" />
     <Compile Include="Aspects\IAspect.cs" />
     <Compile Include="Aspects\ILocationInterceptionAspect.cs" />
     <Compile Include="Aspects\IMethodAspect.cs" />

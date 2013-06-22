@@ -16,6 +16,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -28,68 +29,74 @@ namespace KingAOP.Core.Methods
 {
     internal class InterceptionAspectGenerator
     {
-        private readonly BindingRestrictions _rule;
-        private readonly IEnumerable<MethodInterceptionAspect> _aspects;
-        private readonly MethodInterceptionArgs _args;
+        readonly BindingRestrictions _rule;
+        readonly IEnumerable<MethodInterceptionAspect> _aspects;
+        readonly MethodInterceptionArgs _aspectArgs;
+        readonly bool _isRetValue;
+        readonly bool _isByRefArgs;
+        readonly IEnumerable<DynamicMetaObject> _originalArgs;
 
-        public InterceptionAspectGenerator(object instance, DynamicMetaObject origObj, IEnumerable aspects, MethodInfo method, IEnumerable<DynamicMetaObject> args)
-        {   
-            _rule = origObj.Restrictions;
+        public InterceptionAspectGenerator(object instance, BindingRestrictions rule, IEnumerable aspects, MethodInfo method,
+            IEnumerable<DynamicMetaObject> args, IEnumerable<Type> argsTypes)
+        {
+            _rule = rule;
             _aspects = aspects.Cast<MethodInterceptionAspect>();
+            _originalArgs = args;
+            var argsValues = args.Select(x => x.Value).ToArray();
+            _isRetValue = method.ReturnType != typeof(void);
+            _isByRefArgs = argsTypes.Any(t => t.IsByRef);
 
-            if (method.ReturnType == typeof(void))
+            if (_isByRefArgs)
             {
-                _args = new MethodCallInterceptionArgs(instance, method, new Arguments(args.Select(x => x.Value)),
-                    DelegateFactory.CreateMethodCall(instance, method));
+                if (_isRetValue) _aspectArgs = new FuncInterceptionRefArgs(instance, method, argsValues, DelegateFactory.CreateDelegate(instance, method));
+                
+                else _aspectArgs = new ActionInterceptionRefArgs(instance, method, argsValues, DelegateFactory.CreateDelegate(instance, method));
             }
             else
             {
-                _args = new FunctionInterceptionArgs(instance, method, new Arguments(args.Select(x => x.Value)),
-                    DelegateFactory.CreateFunction(instance, method));
+                if (_isRetValue) _aspectArgs = new FuncInterceptionArgs(instance, method, argsValues, DelegateFactory.CreateFunction(instance, method));
+                
+                else _aspectArgs = new ActionInterceptionArgs(instance, method, argsValues, DelegateFactory.CreateMethodCall(instance, method));
             }
         }
 
         public DynamicMetaObject Generate()
         {
-            bool isRetValue = _args.Method.ReturnType != typeof(void);
-
-            var retType = isRetValue ? _args.Method.ReturnType : typeof(object);
+            var retType = _isRetValue ? _aspectArgs.Method.ReturnType : typeof(object);
 
             ParameterExpression retValue = Expression.Parameter(retType);
-            Expression argsEx = Expression.Constant(_args);
-            var aspectCalls = GenerateAspectCalls(_aspects, argsEx, retValue, isRetValue);
+            Expression aspectArgsEx = Expression.Constant(_aspectArgs);
+            var aspectCalls = GenerateAspectCalls(_aspects, aspectArgsEx, retValue);
 
-            Expression method = null;
+            Expression method = aspectCalls.First();
 
-            for (int i = 0; i < aspectCalls.Count; i++)
+            for (int i = 1; i < aspectCalls.Count; i++)
             {
-                if (i == 0)
-                {
-                    method = aspectCalls[i];
-                }
-                else
-                {
-                    method = Expression.Block(aspectCalls[i], method);
-                }
+                method = Expression.Block(aspectCalls[i], method);
+            }
+
+            if (_isByRefArgs)
+            {
+                method = UpdateRefArgs(method, aspectArgsEx);
             }
             return new DynamicMetaObject(Expression.Block(new[] { retValue }, method, Expression.Convert(retValue, typeof(object))), _rule);
         }
 
-        private List<Expression> GenerateAspectCalls(IEnumerable<MethodInterceptionAspect> aspects, Expression args, ParameterExpression retValue, bool isRetValue)
+        List<Expression> GenerateAspectCalls(IEnumerable<MethodInterceptionAspect> aspects, Expression aspectArgsEx, ParameterExpression retValue)
         {
             var calls = new List<Expression>();
             foreach (var aspect in aspects)
             {
                 MethodCallExpression aspectExpr = Expression.Call(Expression.Constant(aspect),
-                    typeof (MethodInterceptionAspect).GetMethod("OnInvoke"), args);
+                    typeof(MethodInterceptionAspect).GetMethod("OnInvoke"), aspectArgsEx);
 
-                if (isRetValue)
+                if (_isRetValue)
                 {
                     calls.Add(
                         Expression.Block(aspectExpr,
                         Expression.Assign(retValue,
                         Expression.Convert(
-                        Expression.Call(args, typeof(MethodInterceptionArgs).GetProperty("ReturnValue").GetGetMethod()), retValue.Type))));
+                        Expression.Call(aspectArgsEx, typeof(MethodInterceptionArgs).GetProperty("ReturnValue").GetGetMethod()), retValue.Type))));
                 }
                 else
                 {
@@ -97,6 +104,17 @@ namespace KingAOP.Core.Methods
                 }
             }
             return calls;
+        }
+
+        Expression UpdateRefArgs(Expression method, Expression aspectArgsEx)
+        {
+            var finallyBlock = _originalArgs.Select((arg, index) => 
+                Expression.Assign(arg.Expression,
+                Expression.Convert(Expression.MakeIndex(
+                Expression.Property(aspectArgsEx, typeof(MethodInterceptionArgs).GetProperty("Arguments")),
+                typeof (Arguments).GetProperty("Item"), new[] {Expression.Constant(index)}), arg.RuntimeType))).ToList();
+
+            return Expression.TryFinally(method, Expression.Block(finallyBlock));
         }
     }
 }
