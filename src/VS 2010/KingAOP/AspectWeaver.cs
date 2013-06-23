@@ -111,11 +111,21 @@ namespace KingAOP
         Type[] GetArgumentsTypes(DynamicMetaObject[] args)
         {
             var argsTypes = new Type[args.Length];
-            for (int i = 0; i < args.Length; i++)
+
+            short i = 0;
+            foreach (var metaObject in args)
             {
-                argsTypes[i] = ((ParameterExpression)args[i].Expression).IsByRef
-                    ? args[i].RuntimeType.MakeByRefType()
-                    : args[i].RuntimeType;
+                if (metaObject.RuntimeType != null)
+                {
+                    argsTypes[i] = ((ParameterExpression)metaObject.Expression).IsByRef
+                        ? metaObject.RuntimeType.MakeByRefType()
+                        : metaObject.RuntimeType;
+                }
+                else
+                {
+                    argsTypes[i] = metaObject.LimitType;
+                }
+                i++;
             }
             return argsTypes;
         }
