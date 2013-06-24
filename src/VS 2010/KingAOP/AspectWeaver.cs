@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using KingAOP.Aspects;
@@ -44,7 +45,7 @@ namespace KingAOP
         {
             var metaObj = base.BindInvokeMember(binder, args);
 
-            var argsTypes = GetArgumentsTypes(args);
+            var argsTypes = GetMethodArgsTypes(metaObj);
             var method = _objType.GetMethod(binder.Name,
                 BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
@@ -108,26 +109,15 @@ namespace KingAOP
             return aspects.Values;
         }
 
-        Type[] GetArgumentsTypes(DynamicMetaObject[] args)
+        Type[] GetMethodArgsTypes(DynamicMetaObject metaObj)
         {
-            var argsTypes = new Type[args.Length];
+            var argsTypes = new List<Type>();
+            var block = (BlockExpression)metaObj.Expression;
 
-            short i = 0;
-            foreach (var metaObject in args)
-            {
-                if (metaObject.RuntimeType != null)
-                {
-                    argsTypes[i] = ((ParameterExpression)metaObject.Expression).IsByRef
-                        ? metaObject.RuntimeType.MakeByRefType()
-                        : metaObject.RuntimeType;
-                }
-                else
-                {
-                    argsTypes[i] = metaObject.LimitType;
-                }
-                i++;
-            }
-            return argsTypes;
+            var methodExpr = block.Expressions.First(expr => expr.NodeType == ExpressionType.Call);
+            argsTypes.AddRange(((MethodCallExpression)methodExpr).Arguments.Select(arg => arg.Type));
+            
+            return argsTypes.ToArray();
         }
 
         internal class InvertedComparer : IComparer<int>
