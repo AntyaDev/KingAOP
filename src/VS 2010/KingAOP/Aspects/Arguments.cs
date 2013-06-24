@@ -53,12 +53,20 @@ namespace KingAOP.Aspects
 
         public IEnumerator<object> GetEnumerator()
         {
-            yield return _objects;
+            for (uint i = 0; i < _objects.Length; i++)
+            {
+                yield return GetArgument(i);
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        object GetArgument(uint index)
+        {
+            return _objects[index];
         }
     }
 }
