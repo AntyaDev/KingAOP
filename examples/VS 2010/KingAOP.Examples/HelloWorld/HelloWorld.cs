@@ -11,6 +11,13 @@ namespace KingAOP.Examples.HelloWorld
         {
             Console.WriteLine("Hello World");
         }
+        
+        [NotNullInvocationAspect]
+        public void PrintIfArgNotNull(string text)
+        {
+            Console.WriteLine("\n" + "PrintIfArgNotNull");
+            Console.WriteLine(text);
+        }
 
         public DynamicMetaObject GetMetaObject(Expression parameter)
         {

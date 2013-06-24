@@ -12,6 +12,10 @@ namespace KingAOP.Examples
             // hello world example
             dynamic helloWorld = new HelloWorld.HelloWorld();
             helloWorld.HelloWorldCall();
+
+            string text = "test";
+            helloWorld.PrintIfArgNotNull(text);
+            helloWorld.PrintIfArgNotNull(null);
             
             // logging example
             var entity = new TestEntity {Name = "Jon", Number = 99};
