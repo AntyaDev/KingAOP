@@ -115,7 +115,9 @@ namespace KingAOP
             var block = (BlockExpression)metaObj.Expression;
 
             var methodExpr = block.Expressions.First(expr => expr.NodeType == ExpressionType.Call);
-            argsTypes.AddRange(((MethodCallExpression)methodExpr).Arguments.Select(arg => arg.Type));
+            argsTypes.AddRange(((MethodCallExpression)methodExpr).Arguments.Select(arg => ((ParameterExpression)arg).IsByRef 
+                ? arg.Type.MakeByRefType() 
+                : arg.Type));
             
             return argsTypes.ToArray();
         }
