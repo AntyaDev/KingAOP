@@ -54,6 +54,9 @@
     <Compile Include="MethodBoundaryTests\OnSuccess\InitTestEntityAspect.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\MyTestClass.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\OnSuccessTests.cs" />
+    <Compile Include="MethodInterceptionTests\OnInvoke\Aspects.cs" />
+    <Compile Include="MethodInterceptionTests\OnInvoke\MyTestClass.cs" />
+    <Compile Include="MethodInterceptionTests\OnInvoke\OnInvokeTests.cs" />
     <Compile Include="TestData\TestEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -63,6 +66,7 @@
       <Name>KingAOP</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
