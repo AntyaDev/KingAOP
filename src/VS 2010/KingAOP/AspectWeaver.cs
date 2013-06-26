@@ -36,7 +36,8 @@ namespace KingAOP
     {
         readonly Type _objType;
 
-        public AspectWeaver(Expression expression, object obj) : base(expression, BindingRestrictions.Empty, obj)
+        public AspectWeaver(Expression expression, object obj)
+            : base(expression, BindingRestrictions.Empty, obj)
         {
             _objType = obj.GetType();
         }
@@ -111,15 +112,35 @@ namespace KingAOP
 
         Type[] GetMethodArgsTypes(DynamicMetaObject metaObj)
         {
-            var argsTypes = new List<Type>();
-            var block = (BlockExpression)metaObj.Expression;
+            MethodCallExpression callExpr = RetrieveMethodCall(metaObj);
+            return (callExpr).Arguments.Select(arg =>
+            {
+                if (arg.NodeType != ExpressionType.Parameter) return arg.Type;
 
-            var methodExpr = block.Expressions.First(expr => expr.NodeType == ExpressionType.Call);
-            argsTypes.AddRange(((MethodCallExpression)methodExpr).Arguments.Select(arg => ((ParameterExpression)arg).IsByRef 
-                ? arg.Type.MakeByRefType() 
-                : arg.Type));
-            
-            return argsTypes.ToArray();
+                return ((ParameterExpression)arg).IsByRef ? arg.Type.MakeByRefType() : arg.Type;
+            }).ToArray();
+        }
+
+        MethodCallExpression RetrieveMethodCall(DynamicMetaObject metaObj)
+        {
+            Expression callExpr = null;
+
+            while (callExpr == null || callExpr.NodeType != ExpressionType.Call)
+            {
+                switch (metaObj.Expression.NodeType)
+                {
+                    case ExpressionType.Call: return (MethodCallExpression)metaObj.Expression;
+
+                    case ExpressionType.Block:
+                        var block = (BlockExpression)metaObj.Expression;
+                        return (MethodCallExpression)block.Expressions.First(expr => expr.NodeType == ExpressionType.Call);
+
+                    case ExpressionType.Convert: callExpr = ((UnaryExpression)metaObj.Expression).Operand; break;
+
+                    default: throw new NotImplementedException();
+                }
+            }
+            return (MethodCallExpression)callExpr;
         }
 
         internal class InvertedComparer : IComparer<int>
