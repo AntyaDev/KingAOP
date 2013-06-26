@@ -26,5 +26,15 @@ namespace KingAOP.Tests.MethodInterceptionTests.OnInvoke
 
             Assert.IsTrue(value == 5);
         }
+
+        [TestMethod]
+        public void OriginalMethodCanBeNotInvoked()
+        {
+            dynamic test = new MyTestClass();
+            
+            test.SimpleMethod();
+
+            Assert.IsFalse(test.OriginalMethodCalled);
+        }
     }
 }

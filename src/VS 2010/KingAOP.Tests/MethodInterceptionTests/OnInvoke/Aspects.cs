@@ -13,4 +13,10 @@ namespace KingAOP.Tests.MethodInterceptionTests.OnInvoke
             }
         }
     }
+
+    class NotInvokeOriginalMethodAspect : MethodInterceptionAspect
+    {
+        public override void OnInvoke(MethodInterceptionArgs args)
+        { }
+    }
 }
