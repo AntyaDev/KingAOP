@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace KingAOP.Tests.MethodInterceptionTests.OnInvoke
 {
@@ -35,6 +36,18 @@ namespace KingAOP.Tests.MethodInterceptionTests.OnInvoke
             test.SimpleMethod();
 
             Assert.IsFalse(test.OriginalMethodCalled);
+        }
+
+        [TestMethod]
+        public void OriginalMethodCanBeInvokedWithInChaninOfExpressions()
+        {
+            dynamic test = new MyTestClass();
+
+            string value1 = "9";
+            string value2 = "9";
+            test.SimpleMethod(Convert.ToInt32(value1) * Convert.ToInt32(value2) - 81);
+
+            Assert.IsTrue(test.OriginalMethodCalled);
         }
     }
 }
