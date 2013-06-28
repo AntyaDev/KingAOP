@@ -3,11 +3,16 @@ using KingAOP.Tests.TestData;
 
 namespace KingAOP.Tests.MethodBoundaryTests.OnEntry
 {
-    class ChangeStringArgumentAspect : OnMethodBoundaryAspect
+    class ChangeArgumentAspect : OnMethodBoundaryAspect
     {
         public override void OnEntry(MethodExecutionArgs args)
         {
-            args.Arguments[0] = "I changed your value";
+            for (int i = 0; i < args.Arguments.Count; i++)
+            {
+                if (args.Arguments[i] is int) args.Arguments[i] = -1;
+
+                else if (args.Arguments[i] is string) args.Arguments[i] = "I changed your value";
+            }
         }
     }
 

@@ -34,5 +34,16 @@ namespace KingAOP.Tests.MethodBoundaryTests.OnEntry
             Assert.AreEqual("ChangedName", entity.Name);
             Assert.AreEqual(999, entity.Number);
         }
+
+        [TestMethod]
+        public void IntByRefArgumentShouldBeUpdatedByAspect()
+        {
+            dynamic test = new MyTestClass();
+
+            int value = 5;
+            test.MethodWithRefArgs(ref value);
+
+            Assert.IsTrue(value == -1);
+        }
     }
 }

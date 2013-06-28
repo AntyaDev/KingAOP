@@ -1,17 +1,20 @@
 ﻿using System.Dynamic;
 using System.Linq.Expressions;
+using KingAOP.Tests.MethodInterceptionTests.OnInvoke;
 
 namespace KingAOP.Tests.MethodBoundaryTests.OnEntry
 {
     internal class MyTestClass : IDynamicMetaObjectProvider
     {
-        [ChangeStringArgumentAspect]
+        public bool OriginalMethodCalled { get; private set; }
+
+        [ChangeArgumentAspect]
         public string ResturnStringArgument(string argument)
         {
             return argument;
         }
 
-        [ChangeStringArgumentAspect]
+        [ChangeArgumentAspect]
         public string ResturnStringArgumentPassedAsRef(ref string argument)
         {
             return argument;
@@ -21,6 +24,12 @@ namespace KingAOP.Tests.MethodBoundaryTests.OnEntry
         public object ResturnObjectArgument(object argument)
         {
             return argument;
+        }
+
+        [ChangeArgumentAspect]
+        public void MethodWithRefArgs(ref int value)
+        {
+            OriginalMethodCalled = true;
         }
 
         public DynamicMetaObject GetMetaObject(Expression parameter)
