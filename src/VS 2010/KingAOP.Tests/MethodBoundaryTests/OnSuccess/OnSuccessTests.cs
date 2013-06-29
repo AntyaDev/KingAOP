@@ -38,5 +38,16 @@ namespace KingAOP.Tests.MethodBoundaryTests.OnSuccess
             Assert.AreEqual(entity.Name, "KingAOP_OnSuccess");
             Assert.AreEqual(entity.Number, 100);
         }
+
+        [TestMethod]
+        public void IntByRefArgumentShouldBeUpdatedByAspect()
+        {
+            dynamic test = new MyTestClass();
+
+            int value = 5;
+            test.MethodWithRefArgs(ref value);
+
+            Assert.IsTrue(value == -1);
+        }
     }
 }

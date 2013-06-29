@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Dynamic;
 using System.Linq.Expressions;
-using KingAOP.Core;
 using KingAOP.Tests.TestData;
 
 namespace KingAOP.Tests.MethodBoundaryTests.OnSuccess
 {
     internal class MyTestClass : IDynamicMetaObjectProvider
     {
+        public bool OriginalMethodCalled { get; private set; }
+
         [IncrementReturnValueAspect]
         public int ReturnArgumentValue(int number)
         {
@@ -31,6 +32,12 @@ namespace KingAOP.Tests.MethodBoundaryTests.OnSuccess
         {
             testEntity.Name = "test";
             testEntity.Number = 0;
+        }
+
+        [ChangeArgumentAspect]
+        public void MethodWithRefArgs(ref int value)
+        {
+            OriginalMethodCalled = true;
         }
 
         public DynamicMetaObject GetMetaObject(Expression parameter)

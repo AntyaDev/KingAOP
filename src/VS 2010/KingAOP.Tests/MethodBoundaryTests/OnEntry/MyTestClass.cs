@@ -1,6 +1,5 @@
 ﻿using System.Dynamic;
 using System.Linq.Expressions;
-using KingAOP.Tests.MethodInterceptionTests.OnInvoke;
 
 namespace KingAOP.Tests.MethodBoundaryTests.OnEntry
 {
