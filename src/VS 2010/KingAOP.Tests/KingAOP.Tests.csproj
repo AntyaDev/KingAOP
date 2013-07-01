@@ -49,6 +49,9 @@
     <Compile Include="MethodBoundaryTests\OnEntry\Aspects.cs" />
     <Compile Include="MethodBoundaryTests\OnEntry\MyTestClass.cs" />
     <Compile Include="MethodBoundaryTests\OnEntry\OnEntryTests.cs" />
+    <Compile Include="MethodBoundaryTests\OnExit\Aspects.cs" />
+    <Compile Include="MethodBoundaryTests\OnExit\MyTestClass.cs" />
+    <Compile Include="MethodBoundaryTests\OnExit\OnExitTests.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\Aspects.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\MyTestClass.cs" />
     <Compile Include="MethodBoundaryTests\OnSuccess\OnSuccessTests.cs" />
