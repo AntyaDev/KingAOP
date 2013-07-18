@@ -64,6 +64,7 @@
     <Compile Include="Core\Properties\GetterGenerator.cs" />
     <Compile Include="Core\Properties\SetterGenerator.cs" />
     <Compile Include="Core\DelegateFactory.cs" />
+    <Compile Include="Core\Methods\RefArgsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
