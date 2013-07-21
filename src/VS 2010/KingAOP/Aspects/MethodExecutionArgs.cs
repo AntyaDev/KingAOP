@@ -24,33 +24,16 @@ namespace KingAOP.Aspects
     /// <summary>
     /// Arguments of aspect which in executing for a method.
     /// </summary>
-    public class MethodExecutionArgs : AdviceArgs
+    public class MethodExecutionArgs : MethodArgs
     {
-        public MethodExecutionArgs(object instance, MethodInfo method, Arguments arguments) : base(instance)
-        {
-            Method = method;
-            Arguments = arguments;
-        }
-
-        /// <summary>
-        /// Gets the method being executed.
-        /// </summary>
-        public MethodInfo Method { get; private set; }
+        public MethodExecutionArgs(object instance, MethodInfo method, Arguments arguments) 
+            : base(instance, method, arguments)
+        { }
 
         /// <summary>
         /// Determines the control flow of the target method once the advice is exited.
         /// </summary>
         public FlowBehavior FlowBehavior { get; set; }
-
-        /// <summary>
-        /// Gets the arguments with which the method has been invoked.
-        /// </summary>
-        public Arguments Arguments { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the method return value.
-        /// </summary>
-        public object ReturnValue { get; set; }
 
         /// <summary>
         /// Gets the exception currently flying.

@@ -23,34 +23,16 @@ namespace KingAOP.Aspects
     /// <summary>
     ///  Abstract class for arguments of aspect which intercept a method.
     /// </summary>
-    public abstract class MethodInterceptionArgs : AdviceArgs
+    public abstract class MethodInterceptionArgs : MethodArgs
     {
         internal MethodInterceptionArgs(object instance, MethodInfo method, Arguments arguments) 
-            : base(instance)
-        {
-            Method = method;
-            Arguments = arguments;
-        }
-
-        /// <summary>
-        /// Gets the method being executed.
-        /// </summary>
-        public MethodInfo Method { get; private set; }
-
-        /// <summary>
-        /// Gets the arguments with which the method has been invoked.
-        /// </summary>
-        public Arguments Arguments { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the method return value.
-        /// </summary>
-        public object ReturnValue { get; set; }
+            : base(instance, method, arguments)
+        { }
 
         /// <summary>
         ///  Proceeds with invocation of the method that has been intercepted by calling the next node in the chain of invocation, 
         /// passing the current <see cref="Arguments"/> to that method 
-        /// and storing its return value into the property <see cref="ReturnValue"/>
+        /// and storing its return value into the property <see cref="MethodArgs.ReturnValue"/>
         /// </summary>
         public abstract void Proceed();
     }
