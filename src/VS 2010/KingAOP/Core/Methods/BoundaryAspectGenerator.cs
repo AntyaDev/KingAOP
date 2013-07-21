@@ -17,7 +17,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq.Expressions;
@@ -29,46 +28,43 @@ namespace KingAOP.Core.Methods
 {
     internal class BoundaryAspectGenerator
     {
-        readonly Expression _origMethod;
         readonly BindingRestrictions _rule;
-        readonly IEnumerable _aspects;
-        readonly MethodExecutionArgs _args;
+        readonly AspectCalls _aspectCalls;
 
-        public BoundaryAspectGenerator(object instance, DynamicMetaObject metaObj, IEnumerable aspects, MethodInfo method, IEnumerable<DynamicMetaObject> args)
+        public BoundaryAspectGenerator(object instance, DynamicMetaObject metaObj, IEnumerable<OnMethodBoundaryAspect> aspects,
+            MethodInfo method, IEnumerable<DynamicMetaObject> args, IEnumerable<Type> argsTypes)
         {
-            _origMethod = metaObj.Expression;
             _rule = metaObj.Restrictions;
-            _aspects = aspects;
-            _args = new MethodExecutionArgs(instance, method, new Arguments(args.Select(x => x.Value).ToArray()));
+            
+            var methExecArgs = new MethodExecutionArgs(instance, method, new Arguments(args.Select(x => x.Value).ToArray()));
+
+            _aspectCalls = new AspectCalls(metaObj.Expression, aspects, args, methExecArgs, argsTypes.Any(t => t.IsByRef));
         }
 
         public DynamicMetaObject Generate()
         {
-            ParameterExpression retMethodValue = Expression.Parameter(typeof(object));
-            Expression argsEx = Expression.Constant(_args);
-            var aspectCalls = new AspectCalls(_aspects, argsEx, retMethodValue);
-
             Expression method = Expression.Block(
             new[]
             {
-                AssignMethodArgsByRetValue(argsEx, retMethodValue),
-                aspectCalls.EntryCalls.First(),
+                AssignMethodArgsByRetValue(_aspectCalls.ArgsExpression, _aspectCalls.RetMethodValue),
+                _aspectCalls.EntryCalls.First(),
                 Expression.TryCatchFinally(
-                GenerateInvokeCall(aspectCalls, argsEx, retMethodValue),
-                aspectCalls.ExitCalls.First(),
-                GenerateCatchBlock(argsEx, aspectCalls.ExceptionCalls.First(), retMethodValue))
+                _aspectCalls.OriginalCall,
+                _aspectCalls.ExitCalls.First(),
+                GenerateCatchBlock(_aspectCalls.ArgsExpression, _aspectCalls.ExceptionCalls.First(), _aspectCalls.RetMethodValue))
             });
 
-            for (int i = 1; i < aspectCalls.EntryCalls.Count; i++)
+            for (int i = 1; i < _aspectCalls.EntryCalls.Count; i++)
             {
                 method = Expression.Block(
                 new[]
                 {
-                    aspectCalls.EntryCalls[i],
-                    Expression.TryCatchFinally(Expression.Block(method, aspectCalls.SuccessCalls[i]), aspectCalls.ExitCalls[i])
+                    _aspectCalls.EntryCalls[i],
+                    Expression.TryCatchFinally(Expression.Block(method, _aspectCalls.SuccessCalls[i]), _aspectCalls.ExitCalls[i])
                 });
             }
-            return new DynamicMetaObject(Expression.Block(new[] { retMethodValue }, method, retMethodValue), _rule);
+
+            return new DynamicMetaObject(Expression.Block(new[] { _aspectCalls.RetMethodValue }, method, _aspectCalls.RetMethodValue), _rule);
         }
 
         CatchBlock GenerateCatchBlock(Expression methArgEx, Expression exceptionCall, ParameterExpression retMethodValue)
@@ -103,70 +99,92 @@ namespace KingAOP.Core.Methods
                 });
         }
 
-        Expression GenerateInvokeCall(AspectCalls aspectCalls, Expression methArgEx, ParameterExpression retMethodValue)
-        {
-            var invokeCalls = new List<Expression>();
-
-            if (_args.Method.ReturnType != typeof(void))
-            {
-                invokeCalls.Add(Expression.Assign(retMethodValue, _origMethod)); // [ returnValue = interceptedMethod.Call(); ]
-                invokeCalls.Add(AssignMethodArgsByRetValue(methArgEx, retMethodValue));  // [ MethodExecutionArgs.ReturnValue = returnValue; ]
-            }
-            else
-            {
-                invokeCalls.Add(_origMethod); // [ interceptedMethod.Call(); ]
-            }
-
-            invokeCalls.Add(aspectCalls.SuccessCalls[0]);
-            return Expression.Block(invokeCalls);
-        }
-
         // [ MethodExecutionArgs.ReturnValue = returnValue; ]
-        Expression AssignMethodArgsByRetValue(Expression methArgEx, ParameterExpression retMethodValue)
+        static Expression AssignMethodArgsByRetValue(Expression methArgEx, ParameterExpression retMethodValue)
         {
             return Expression.Call(methArgEx, typeof(MethodExecutionArgs).GetProperty("ReturnValue").GetSetMethod(), retMethodValue);
         }
-    }
 
-    /// <summary>
-    /// Represent a container for an all aspects which should be applied for a specific method
-    /// </summary>
-    internal class AspectCalls
-    {
-        public List<Expression> EntryCalls { get; private set; }
-        public List<Expression> SuccessCalls { get; private set; }
-        public List<Expression> ExceptionCalls { get; private set; }
-        public List<Expression> ExitCalls { get; private set; }
-
-        private AspectCalls()
+        /// <summary>
+        /// Represent a container for an all aspects which should be applied for a specific method
+        /// </summary>
+        internal class AspectCalls
         {
-            EntryCalls = new List<Expression>();
-            SuccessCalls = new List<Expression>();
-            ExceptionCalls = new List<Expression>();
-            ExitCalls = new List<Expression>();
-        }
+            readonly bool _isByRefArgs;
+            readonly IEnumerable<DynamicMetaObject> _args;
+            readonly Expression _origMethod;
 
-        public AspectCalls(IEnumerable aspects, Expression args, ParameterExpression retValue) : this()
-        {
-            foreach (var aspect in aspects)
+            public Expression ArgsExpression { get; private set; }
+            public ParameterExpression RetMethodValue { get; private set; }
+            public MethodExecutionArgs MethodExecutionArgs { get; private set; }
+
+            public List<Expression> EntryCalls { get; private set; }
+            public List<Expression> SuccessCalls { get; private set; }
+            public List<Expression> ExceptionCalls { get; private set; }
+            public List<Expression> ExitCalls { get; private set; }
+            public Expression OriginalCall { get; private set; }
+
+            private AspectCalls()
             {
-                var methBoundAsp = aspect as OnMethodBoundaryAspect;
-                if (methBoundAsp != null)
-                {
-                    EntryCalls.Add(Expression.Call(Expression.Constant(aspect), typeof(OnMethodBoundaryAspect).GetMethod("OnEntry"), args));
-                    SuccessCalls.Add(GenerateCall("OnSuccess", methBoundAsp, args, retValue));
-                    ExceptionCalls.Add(Expression.Call(Expression.Constant(aspect), typeof (OnMethodBoundaryAspect).GetMethod("OnException"), args));
-                    ExitCalls.Add(GenerateCall("OnExit", methBoundAsp, args, retValue));
-                }
+                EntryCalls = new List<Expression>();
+                SuccessCalls = new List<Expression>();
+                ExceptionCalls = new List<Expression>();
+                ExitCalls = new List<Expression>();
             }
-        }
 
-        Expression GenerateCall(string methodName, OnMethodBoundaryAspect aspect, Expression args, ParameterExpression retValue)
-        {
-            return Expression.Block(
-                Expression.Call(Expression.Constant(aspect), typeof (OnMethodBoundaryAspect).GetMethod(methodName), args),
-                Expression.Assign(retValue,
-                Expression.Call(args, typeof (MethodExecutionArgs).GetProperty("ReturnValue").GetGetMethod())));
+            public AspectCalls(Expression origMethod, IEnumerable<OnMethodBoundaryAspect> aspects,
+                IEnumerable<DynamicMetaObject> args, MethodExecutionArgs methExecArgs, bool isByRefArgs)
+                : this()
+            {
+                _origMethod = origMethod;
+                _args = args;
+                MethodExecutionArgs = methExecArgs;
+                _isByRefArgs = isByRefArgs;
+
+                ArgsExpression = Expression.Constant(methExecArgs);
+                RetMethodValue = Expression.Parameter(typeof(object));
+
+                foreach (var aspect in aspects)
+                {
+                    EntryCalls.Add(GenerateCall("OnEntry", aspect));
+                    SuccessCalls.Add(GenerateCall("OnSuccess", aspect));
+                    ExceptionCalls.Add(GenerateCall("OnException", aspect));
+                    ExitCalls.Add(GenerateCall("OnExit", aspect));
+                }
+
+                OriginalCall = GenerateOriginalCall();
+            }
+
+            Expression GenerateCall(string methodName, OnMethodBoundaryAspect aspect)
+            {
+                var method = Expression.Block(
+                    Expression.Call(Expression.Constant(aspect), typeof(OnMethodBoundaryAspect).GetMethod(methodName), ArgsExpression),
+                    Expression.Assign(RetMethodValue,
+                    Expression.Call(ArgsExpression, typeof(MethodExecutionArgs).GetProperty("ReturnValue").GetGetMethod())));
+
+                return _isByRefArgs ? method.UpdateRefParamsByArguments(_args, ArgsExpression) : method;
+            }
+
+            Expression GenerateOriginalCall()
+            {
+                var invokeCalls = new List<Expression>();
+
+                if (MethodExecutionArgs.Method.ReturnType != typeof(void))
+                {
+                    invokeCalls.Add(Expression.Assign(RetMethodValue, _origMethod)); // [ returnValue = interceptedMethod.Call(); ]
+                    invokeCalls.Add(AssignMethodArgsByRetValue(ArgsExpression, RetMethodValue));  // [ MethodExecutionArgs.ReturnValue = returnValue; ]
+                }
+                else
+                {
+                    invokeCalls.Add(_origMethod); // [ interceptedMethod.Call(); ]
+                }
+
+                if (_isByRefArgs) invokeCalls[0] = invokeCalls[0].UpdateArgumentsByRefParams(_args, ArgsExpression);
+
+                invokeCalls.Add(SuccessCalls[0]);
+
+                return Expression.Block(invokeCalls);
+            }
         }
     }
 }

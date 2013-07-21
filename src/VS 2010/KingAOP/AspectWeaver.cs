@@ -59,11 +59,11 @@ namespace KingAOP
 
                 if (method.IsDefined(typeof(OnMethodBoundaryAspect), false))
                 {
-                    metaObj = new BoundaryAspectGenerator(Value, metaObj, aspects, method, args).Generate();
+                    metaObj = new BoundaryAspectGenerator(Value, metaObj, aspects.Cast<OnMethodBoundaryAspect>(), method, args, argsTypes).Generate();
                 }
                 else
                 {
-                    metaObj = new InterceptionAspectGenerator(Value, metaObj.Restrictions, aspects, method, args, argsTypes).Generate();
+                    metaObj = new InterceptionAspectGenerator(Value, metaObj.Restrictions, aspects.Cast<MethodInterceptionAspect>(), method, args, argsTypes).Generate();
                 }
             }
             return metaObj;
