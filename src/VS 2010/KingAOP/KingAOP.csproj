@@ -43,6 +43,7 @@
     <Compile Include="Aspects\AdviceArgs.cs" />
     <Compile Include="Aspects\Arguments.cs" />
     <Compile Include="Aspects\Aspect.cs" />
+    <Compile Include="Aspects\MethodArgs.cs" />
     <Compile Include="Core\Methods\FuncInterceptionRefArgs.cs" />
     <Compile Include="Core\Methods\ActionInterceptionRefArgs.cs" />
     <Compile Include="Core\Properties\PropertyInterceptionArgs.cs" />
