@@ -17,7 +17,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq.Expressions;
@@ -36,11 +35,12 @@ namespace KingAOP.Core.Methods
         readonly bool _isByRefArgs;
         readonly IEnumerable<DynamicMetaObject> _originalArgs;
 
-        public InterceptionAspectGenerator(object instance, BindingRestrictions rule, IEnumerable aspects, MethodInfo method,
+        public InterceptionAspectGenerator(object instance, BindingRestrictions rule,
+            IEnumerable<MethodInterceptionAspect> aspects, MethodInfo method,
             IEnumerable<DynamicMetaObject> args, IEnumerable<Type> argsTypes)
         {
             _rule = rule;
-            _aspects = aspects.Cast<MethodInterceptionAspect>();
+            _aspects = aspects;
             _originalArgs = args;
             var argsValues = args.Select(x => x.Value).ToArray();
             _isRetValue = method.ReturnType != typeof(void);
@@ -75,10 +75,8 @@ namespace KingAOP.Core.Methods
                 method = Expression.Block(aspectCalls[i], method);
             }
 
-            if (_isByRefArgs)
-            {
-                method = UpdateRefArgs(method, aspectArgsEx);
-            }
+            if (_isByRefArgs) method = method.UpdateRefParamsByArguments(_originalArgs, aspectArgsEx);
+            
             return new DynamicMetaObject(Expression.Block(new[] { retValue }, method, Expression.Convert(retValue, typeof(object))), _rule);
         }
 
@@ -104,17 +102,6 @@ namespace KingAOP.Core.Methods
                 }
             }
             return calls;
-        }
-
-        Expression UpdateRefArgs(Expression method, Expression aspectArgsEx)
-        {
-            var finallyBlock = _originalArgs.Select((arg, index) => 
-                Expression.Assign(arg.Expression,
-                Expression.Convert(Expression.MakeIndex(
-                Expression.Property(aspectArgsEx, typeof(MethodInterceptionArgs).GetProperty("Arguments")),
-                typeof (Arguments).GetProperty("Item"), new[] {Expression.Constant(index)}), arg.RuntimeType))).ToList();
-
-            return Expression.TryFinally(method, Expression.Block(finallyBlock));
         }
     }
 }
