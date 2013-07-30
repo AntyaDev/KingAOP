@@ -15,12 +15,12 @@ namespace KingAOP.Tests.MethodBoundaryTests.OnEntry
         }
 
         [TestMethod]
-        public void OnEntry_ShouldNotChange_StringArgument_PassedAsRef()
+        public void OnEntry_ShouldChange_StringArgument_PassedAsRef()
         {
             dynamic myTest = new MyTestClass();
             string argument = "argument";
             string ret = myTest.ResturnStringArgumentPassedAsRef(ref argument);
-            Assert.AreEqual(ret, "argument");
+            Assert.AreNotEqual(ret, "argument");
         }
 
         [TestMethod]
