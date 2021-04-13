@@ -34,7 +34,7 @@ namespace KingAOP.Examples
             {
                 publicService.Send(entity);
             }
-            catch (Exception ex)
+            catch
             {
                 Console.WriteLine("We catched original exception after 'exception aspect' did his job.");
             }
