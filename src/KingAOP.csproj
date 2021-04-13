@@ -15,11 +15,5 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/fjordBob/KingAOP</PackageProjectUrl>    
   </PropertyGroup>
-
-  <PackageReference Include="NuGet.Build.Packaging" Version="0.2.2">
-    <PrivateAssets>all</PrivateAssets>
-    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-  </PackageReference>
-
-
+  
 </Project>
