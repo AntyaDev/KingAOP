@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackageId>FjordBob.KingAOP</PackageId>
     <Authors>Fjord Bob</Authors>
     <Owners>fjordBob</Owners>
