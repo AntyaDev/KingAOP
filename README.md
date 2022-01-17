@@ -1,6 +1,6 @@
 # KingAOP for dotnet dore and VS2019
 
-This fork for KingAOP is now supporting dotnet core (3.1 LTS) and VS2019.
+This fork for KingAOP is now supporting dotnet core (6.0 LTS) and VS2022.
 
 KingAOP is an AOP framework which is essentially a free alternative of PostSharp. If you familiar with PostSharp, then you can notice that KingAOP has even the same interfaces to interract with you:)
 
